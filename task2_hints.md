@@ -1,94 +1,116 @@
 # Task 2 escalating hints (facilitator playbook)
 
-Use these when a participant's agent stalls. Walk down the ladder.
+`scikit-fem` is the assumed library. Walk down the ladder.
 
-## If the agent doesn't load the data
+## If the agent stalls picking a library
 
-- **Hint 1:** "Tell it to list the files in the folder."
-- **Hint 2:** "Have it read the headers of both CSVs first, then
-  load them with pandas."
+- **Hint 1:** "The workshop venv already has `scikit-fem` installed.
+  Use that."
+- **Hint 2:** "scikit-fem uses Lagrange P1 elements on tet meshes.
+  Heat conduction examples are in its docs under 'ex01' / 'ex03'."
 
-## If it doesn't join the two tables
+## If the mesh setup is wrong
 
-- **Hint 1:** "Are you working from one table or two? What identifier
-  links them?"
-- **Hint 2:** "Tell the agent to merge `designs_parameters.csv` and
-  `designs_results.csv` on `design_id`."
+- **Hint 1:** "Use `MeshTet.init_tensor(xs, ys, zs)` for a
+  structured tet mesh on a box."
+- **Hint 2:** "Tag elements by z centroid to assign materials.
+  `z_centroid = mesh.p[2, mesh.t].mean(axis=0)`."
 
-## If it ignores anomalies and just runs `.describe()`
+## If T goes the wrong direction at z = 0
 
-- **Hint 1:** "Before computing averages — does the data look clean?
-  Any negative values that shouldn't be? Any missing rows?"
-- **Hint 2:** "Have it count rows after the merge. Are all 200
-  designs represented? What about NaNs?"
-- **Hint 3:** "There are at least three data quality issues planted
-  in this dataset. Find them before recommending designs."
+The most common bug.
 
-## If it can't define "Pareto-optimal"
+- **Hint 1:** "Watch T at z = 0 over time. Should it rise or fall?
+  Heat is entering."
+- **Hint 2:** "Your Neumann BC should add to the RHS, not subtract.
+  For the weak form `∫ k ∇T·∇v dx = ∫_∂ q·n v ds`, with q pointing
+  out of the domain at z = 0, the inflow gives positive contribution
+  to the RHS at that face."
+- **Hint 3:** "Assemble the boundary load with
+  `FacetBasis(mesh, e_T, facets=mesh.facets_satisfying(lambda x:
+  np.isclose(x[2], 0)))` and a linear form `v -> q_in * v`."
 
-- **Hint 1:** "What does Pareto-optimal mean for two objectives?"
-- **Hint 2:** "A design is Pareto-optimal if no other design has both
-  lower temperature *and* shorter wire length. Compute the
-  non-dominated set."
-- **Hint 3:** "Sort by temperature ascending. Walk the list keeping a
-  running minimum of wire length. Each row that beats the running
-  minimum is Pareto-optimal."
+## If only one material is used (slope kink missing)
 
-## If recommendations include thermal_violation or sim_failed designs
+Symptom: T profile is a straight line from z = 0 to z = L_z instead
+of two segments with different slopes.
 
-- **Hint:** "Should you be recommending designs that the simulator
-  marked as failed or violating? Filter first."
+- **Hint 1:** "Your assembly is using one conductivity value. But k
+  changes at z = 0.005 m. How are you handling the two materials?"
+- **Hint 2:** "Split the elements into two subdomains. Create two
+  bases with `Basis(mesh, e_T, elements=elems_A_idx)` and
+  `Basis(mesh, e_T, elements=elems_B_idx)`. Assemble K and M on each
+  separately, then sum: `K = k_A * asm(diff, basis_A) + k_B * asm(diff,
+  basis_B)`."
 
-## If the recommendation list has 50+ "Pareto-optimal" designs
+## If T keeps rising forever (no steady state)
 
-- **Hint:** "How many designs can be Pareto-optimal? It should be a
-  small set on the lower-left frontier. If you're getting 50, you're
-  not filtering correctly."
+- **Hint:** "Did you constrain T at z = L_z? The Dirichlet BC there
+  is what makes the problem well-posed."
+- "Use `D_top = basis_T.get_dofs(lambda x: np.isclose(x[2], Lz))`
+  and apply with `condense`."
 
-## If the agent skips the predictive model entirely
+## If the time loop produces NaN immediately
 
-- **Hint 1:** "The brief requires a predictive model. Have it fit a
-  linear regression for max_temperature_c."
-- **Hint 2:** "Use sklearn LinearRegression. Train/test split 80/20.
-  Report R² and MAE on the test set."
+- **Hint 1:** "Implicit Euler is unconditionally stable. If you're
+  blowing up, the system matrix is probably wrong — print the
+  condition number or check `M + dt*K` is positive definite."
+- **Hint 2:** "Did you forget to apply Dirichlet BCs inside the
+  time loop? Apply them at every step, not just once."
 
-## If the regression has R² < 0.5
+## If `condense` returns the wrong shape
 
-The agent fit on dirty data.
+- **Hint:** "`condense(A, b, x=x, D=D)` returns four values:
+  `A_reduced, b_reduced, x_prescribed, free_indices`. Unpack all
+  four and reconstruct the full solution: `x[free_indices] =
+  spsolve(A_reduced, b_reduced)`."
 
-- **Hint:** "What rows are in your training set? If the model is
-  fitting NaNs, thermal_violation designs, or the negative wire row,
-  that's why R² is low. Clean first, then fit."
+## If the mechanical solve gives a singular matrix
 
-## If R² is suspiciously above 0.99
+- **Hint:** "Your stiffness matrix has rigid-body modes — you need
+  enough Dirichlet BCs to remove them. Clamp the top face fully
+  (all three components of u on z = L_z)."
 
-The agent leaked the target into the features (e.g., used `status`
-as an input, or fit on data including the test set).
+## If the thermal load form errors on interpolation
 
-- **Hint:** "Are you sure your train and test sets are disjoint? What
-  features did you include? Did `status` or `total_wire_length_mm`
-  end up in the predictors?"
+- **Hint:** "Pass `T=basis_T_A.interpolate(T)` (the *scalar* basis,
+  restricted to the same subdomain as the vector basis you're
+  assembling on). They share quadrature points so it works.
+  Don't try to interpolate a scalar field through a vector basis."
 
-## If the report has no numbers
+## If stress is smooth across the interface (jump missing)
 
-- **Hint:** "Recommendations need to be defensible. Quote the
-  thermal-violation rate by cooling method. Quote the model's R² and
-  the cooling coefficient. A reader should be able to argue with the
-  conclusions."
+- **Hint 1:** "σ should be discontinuous at z = 5 mm because E and
+  α both change. If your plot is smooth there, you're either
+  averaging stress across the interface, or computing it with the
+  wrong material properties on one side."
+- **Hint 2:** "Compute stress per element using each element's own
+  material properties (`elems_A` vs `elems_B`), then plot per
+  element with `shading='flat'` — no smoothing."
 
-## If the plot is a mess (no labels, no Pareto overlay)
+## If the agent skips validation
 
-- **Hint:** "Re-do the plot with axis labels, a title, and the
-  Pareto-optimal points highlighted in a different colour."
-- Teaching moment: in a chat session you'd describe the bad plot in
-  words and hope. Here you can iterate.
+- **Hint:** "The centerline T should match a 1-D conduction
+  analytical solution: piecewise-linear with slope ratio
+  k_Cu/k_Si ≈ 2.71. Compute the analytical T(0) = T_ref + q·(L_A/k_A
+  + L_B/k_B) ≈ 344 K and confirm your numerical answer."
 
-## If the model loops or thrashes
+## If the report has no statistics
 
-- Restart with a tighter prompt. Paste the *current* CSV head and ask
-  for *one specific next step*, not the whole analysis.
+- **Hint:** "Report at least: peak T (value + location), peak von
+  Mises stress (value + location + material), time to 95 %
+  steady-state ΔT at the interface centerline, and the σ_xx jump
+  magnitude across the interface on the centerline."
+
+## If the agent loops on an API issue
+
+- Restart with a tighter prompt. Paste the *current* solver state
+  and the *exact* error message. Ask for a single targeted fix
+  rather than a redesign.
 
 ## Whole-room stuck
 
-Switch to demo mode. Run the analysis on the projector and narrate.
-Even watching, participants get the loop intuition.
+Switch to demo mode. Open `../task2_reference_solver.py` on the
+projector and walk through it section by section — mesh, heat
+assembly, time loop, mechanical assembly, post-processing. Even
+watching is the lesson here.

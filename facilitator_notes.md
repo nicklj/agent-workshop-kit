@@ -2,67 +2,46 @@
 
 ## Workshop schedules
 
-There are now four tasks (0–3). Three credible shapes depending on
-how long you want the session and what you want to emphasise:
+Three tasks (0–2). Two credible shapes depending on how long you
+have:
 
-### Schedule A — 2 hours, task 1 dropped (recommended)
-
-Use this if you want to land the headline demo (task 3) with
-breathing room. Task 1's lesson is implicit in tasks 2 and 3.
+### Schedule A — 2 hours (recommended)
 
 | Time | Block |
 |------|-------|
 | 0:00–0:05 | Intro |
 | 0:05–0:30 | Task 0: setup |
-| 0:30–1:00 | Task 2: data analysis + regression |
-| 1:00–1:50 | Task 3: build the 3D FEM solver |
+| 0:30–1:00 | Task 1: data analysis + regression |
+| 1:00–1:50 | Task 2: build the 3D FEM solver |
 | 1:50–2:00 | Debrief |
 
-Task 3 needs ~50 min minimum to get from blank-folder to validated
+Task 2 needs ~50 min minimum to get from blank-folder to validated
 output. Don't try to compress below that — partial 3D FEM is more
 demoralising than a complete simpler task.
 
-### Schedule B — 90 minutes, sampler (no deep task 3)
+### Schedule B — 90 minutes, sampler (no deep task 2)
 
-If you only have 90 minutes, *don't* try to fit a full task 3.
-Instead, demo task 3 yourself for ~10 minutes at the end.
+If you only have 90 minutes, *don't* try to fit a full task 2.
+Instead, demo it yourself for ~10 minutes at the end.
 
 | Time | Block |
 |------|-------|
 | 0:00–0:05 | Intro |
 | 0:05–0:25 | Task 0: setup |
-| 0:25–0:35 | Task 1: warmup (bug 4 is the value, not 1–3) |
-| 0:35–1:10 | Task 2: main exercise |
-| 1:10–1:25 | Task 3 *facilitator demo* (run reference solver, narrate) |
+| 0:25–1:10 | Task 1: full main exercise |
+| 1:10–1:25 | Task 2 *facilitator demo* (run reference solver, narrate) |
 | 1:25–1:30 | Debrief |
 
-This is the honest 90-minute path. Task 3 lands as a "watch what
-this can do" rather than a hands-on.
-
-### Schedule C — half-day (3 hours, all four tasks at full depth)
-
-| Time | Block |
-|------|-------|
-| 0:00–0:10 | Intro |
-| 0:10–0:35 | Task 0: setup |
-| 0:35–0:50 | Task 1: warmup |
-| 0:50–1:30 | Task 2: full main exercise (with predictive model) |
-| 1:30–1:45 | Break |
-| 1:45–2:50 | Task 3: full 3D FEM solver build + validate + report |
-| 2:50–3:00 | Debrief |
-
-The comfortable version. Recommended if you have the slot.
+This is the honest 90-minute path. Task 2 lands as "watch what this
+can do" rather than a hands-on.
 
 ## Notes on the schedules
 
 - If task 0 setup runs long, hold the line — setup is what makes
-  the rest possible. Eat into task 1 first, then task 2 stretch,
-  then task 3 validation.
-- Task 3 is the workshop's headline demo. If you have to choose
-  between depth on task 2 and depth on task 3, keep task 3 deep.
-- Task 1 is the *only* one whose pedagogical content (verify-the-
-  output discipline) is also implicit in the others. It's the
-  natural one to cut for time.
+  the rest possible. Eat into task 1 stretch first, then task 2
+  validation.
+- Task 2 is the workshop's headline demo. If you have to choose
+  between depth on task 1 and depth on task 2, keep task 2 deep.
 
 ## Task 0 facilitation tips
 
@@ -79,45 +58,13 @@ The comfortable version. Recommended if you have the slot.
 
 ## Task 1 facilitation
 
-### Before task 1 (2 min)
+### Before task 1 (3 min)
 
-> ChatGPT can write this script for you in one shot. When it doesn't
-> work, *you* become the messenger — copy the error, paste it back,
-> run it, copy the next error. The agent removes you from that loop.
->
-> One more thing. A clean exit is not the same as a correct answer.
-> The agent will tell you it's done before checking whether the
-> output makes sense. Your job is to either trust it (and find out
-> later in production) or to ask it to verify. We'll talk about which
-> participants did which.
-
-### What to watch for
-
-- **Bug 4 split.** Some participants will copy the suggested prompt
-  literally — including "verify the output is reasonable". Their
-  agent will catch the inverted speedup. Others will say "make it
-  work" and accept the broken summary. Note who's in each group.
-- **First time the agent reads its own output file** — call out this
-  moment. "It's checking its own work. Chatbots can't do this."
-
-### Expected timing
-
-On `gpt-5.4-mini`:
-- Bugs 1–3: ~3–6 minutes including any thrashing
-- Bug 4: ~3–8 minutes depending on whether the model catches it
-  unprompted or needs a hint
-- Total: ~10–15 minutes for most participants
-
-## Task 2 facilitation
-
-### Before task 2 (3 min)
-
-> Task 1 was the loop. Task 2 is what the loop *enables*. 200 design
-> points across two CSVs. Too big to paste into a chat. Three planted
-> data quality issues — I'm not telling you what. The agent has to
-> notice. And you'll fit a small predictive model and check it on
-> held-out data, the kind of step that would be a copy-paste
-> nightmare in a chat session.
+> 200 design points across two CSVs. Too big to paste into a chat.
+> Three planted data quality issues — I'm not telling you what. The
+> agent has to notice. And you'll fit a small predictive model and
+> check it on held-out data, the kind of step that would be a
+> copy-paste nightmare in a chat session.
 
 ### What to watch for and call out
 
@@ -140,21 +87,21 @@ Strong points:
 
 Watch for:
 - May miss the negative wire length on design 23 — the value's status
-  is "ok" so it sneaks past a status filter. See `task2_hints.md`.
+  is "ok" so it sneaks past a status filter. See `task1_hints.md`.
 - Sometimes fits the regression on dirty data without filtering →
   weak R². Coach toward "clean first, then fit".
 - Occasionally leaks `status` or `total_wire_length_mm` into features
   → R² > 0.99 (suspicious). Coach toward checking the feature list.
 
-## Task 3 facilitation
+## Task 2 facilitation
 
-### Before task 3 (3 min)
+### Before task 2 (3 min)
 
-> Task 1 was the loop. Task 2 was using the loop on data. Task 3 is
-> using the loop on *3D scientific code* — you're going to ask the
-> agent to build a 3D finite-element solver from scratch in
-> `scikit-fem`. No starter code. No skeleton. Just the physics, the
-> materials, and the library.
+> Task 1 was using the loop on data. Task 2 is using the loop on
+> *3D scientific code* — you're going to ask the agent to build a
+> 3D finite-element solver from scratch in `scikit-fem`. No starter
+> code. No skeleton. Just the physics, the materials, and the
+> library.
 >
 > This is where chat sessions completely fall apart. The agent will
 > write 150–300 lines, hit a NaN or a singular matrix or a wrong
@@ -201,7 +148,7 @@ Strong points:
 Watch for (in approximate order of likelihood):
 - **scikit-fem API confusion** — `condense` returns 4 values, dof
   indexing on vector fields uses component names like `u^1`, etc.
-  See `task3_hints.md` for the specific patterns.
+  See `task2_hints.md` for the specific patterns.
 - **Wrong heat-flux sign at z = 0** — T decreases at hot end.
   Common bug across all FEM frameworks.
 - **Single-conductivity assembly** — slope kink missing in plot.
@@ -214,46 +161,44 @@ Watch for (in approximate order of likelihood):
 
 ## Debrief prompts (5 min)
 
-1. **"In task 1, did your agent catch the broken speedups on its
-   own?"** Surface the verify-the-output split.
-2. **"In task 2, how many tool calls did the agent make? In task 3?"**
-   Task 2 is usually 20–40; task 3 is 40–80. That's how many
-   copy-pastes you'd have done.
-3. **"Which anomalies (task 2) or bugs (task 3) did the agent
+1. **"In task 1, how many tool calls did the agent make? In task 2?"**
+   Task 1 is usually 20–40; task 2 is 40–80. That's how many
+   copy-pastes you'd have done in a chat session.
+2. **"Which anomalies (task 1) or bugs (task 2) did the agent
    diagnose unprompted, and which did you have to point at?"**
    Calibrates trust honestly.
-4. **"In task 3, did your agent validate against the analytical
+3. **"In task 2, did your agent validate against the analytical
    steady state? Or did it just plot the curves and call it done?"**
    This is the discipline question — separates a solver from a
    confident-looking fake.
-5. **"What would you not trust this setup for yet?"** Let participants
+4. **"What would you not trust this setup for yet?"** Let participants
    name their own limits. Good answers: anything irreversible, shared
    infra, anything you can't verify cheaply.
-6. **"What's a task in your own work shaped like task 3 — derive,
+5. **"What's a task in your own work shaped like task 2 — derive,
    code, debug, validate, report?"** That's the take-home for the
    computational scientists in the room.
 
 ## Whole-room fallback: facilitator demo mode
 
-If most of the room is stuck on task 2 or task 3, run it on the
+If most of the room is stuck on task 1 or task 2, run it on the
 projector and narrate.
 
-For task 2, show: the merge, `df.describe()` exposing the negative
+For task 1, show: the merge, `df.describe()` exposing the negative
 value and NaN, one iteration on a plot, the regression with held-out
 R², the report.
 
-For task 3, show: the agent writing the discretisation, hitting a
-NaN, computing CFL, fixing Δt, hitting the BC sign bug, fixing it,
-plotting, validating against steady state, computing the stress jump.
-Even watching, participants get the loop intuition.
+For task 2, show: the agent writing the discretisation, hitting a
+NaN, fixing the BC sign bug, plotting, validating against steady
+state, computing the stress jump. Even watching, participants get
+the loop intuition.
 
 ## Closing (~2 min)
 
 > The agent pattern doesn't change with the model — prompt → tool
 > call → observe → next step. What changes with a stronger model is
 > *how often you have to step in*. On `gpt-5.4-mini` you stepped in
-> maybe 2–4 times in task 2 and 5–10 times in task 3. With a frontier
-> model, fewer. With a 4B local model, every couple of minutes. Pick
-> the model that matches the cost of being wrong on your task — and
-> pick "verify the output" and "compare to an analytical limit" as
-> permanent habits regardless of model.
+> maybe 2–4 times in task 1 and 5–10 times in task 2. With a frontier
+> model, fewer. With a small local model, every couple of minutes.
+> Pick the model that matches the cost of being wrong on your task —
+> and pick "verify the output" and "compare to an analytical limit"
+> as permanent habits regardless of model.

@@ -8,7 +8,7 @@ from skfem import BilinearForm, LinearForm, asm, condense
 from skfem.helpers import dot, grad, ddot, sym_grad, trace, eye
 
 # Load materials
-mats = json.load(open("/Users/liuj/SynologyDrive/1SM/0AMM/presentation/agent2/workshop/task3_kit/materials.json"))
+mats = json.load(open("/Users/liuj/SynologyDrive/1SM/0AMM/presentation/agent2/workshop/task2_kit/materials.json"))
 A_props = mats["material_A"]
 B_props = mats["material_B"]
 T_ref = mats["T_ref_K"]
@@ -25,7 +25,7 @@ print(f"mesh: {mesh.nvertices} nodes, {mesh.nelements} tets")
 
 # Element-wise subdomain mask
 elem_z = mesh.p[2, mesh.t].mean(axis=0)
-interface_z = A_props["x_range_m"][1]
+interface_z = A_props["z_range_m"][1]
 elems_A = np.where(elem_z < interface_z)[0]
 elems_B = np.where(elem_z >= interface_z)[0]
 

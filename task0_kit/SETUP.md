@@ -55,7 +55,7 @@ source ~/.venv/bin/activate
 uv pip install pandas matplotlib scikit-learn scikit-fem
 ```
 
-(`scikit-fem` is for task 3. The first three are for tasks 1 and 2.)
+(`scikit-fem` is for task 2. The first three are for task 1.)
 
 Verify everything imports:
 
