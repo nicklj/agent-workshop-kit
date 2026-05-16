@@ -1,11 +1,6 @@
 # Facilitator notes
 
-## Workshop schedules
-
-Three tasks (0–2). Two credible shapes depending on how long you
-have:
-
-### Schedule A — 2 hours (recommended)
+## Workshop schedule (2 hours)
 
 | Time | Block |
 |------|-------|
@@ -16,32 +11,14 @@ have:
 | 1:50–2:00 | Debrief |
 
 Task 2 needs ~50 min minimum to get from blank-folder to validated
-output. Don't try to compress below that — partial 3D FEM is more
+output. Don't compress below that — partial 3D FEM is more
 demoralising than a complete simpler task.
 
-### Schedule B — 90 minutes, sampler (no deep task 2)
-
-If you only have 90 minutes, *don't* try to fit a full task 2.
-Instead, demo it yourself for ~10 minutes at the end.
-
-| Time | Block |
-|------|-------|
-| 0:00–0:05 | Intro |
-| 0:05–0:25 | Task 0: setup |
-| 0:25–1:10 | Task 1: full main exercise |
-| 1:10–1:25 | Task 2 *facilitator demo* (run reference solver, narrate) |
-| 1:25–1:30 | Debrief |
-
-This is the honest 90-minute path. Task 2 lands as "watch what this
-can do" rather than a hands-on.
-
-## Notes on the schedules
-
-- If task 0 setup runs long, hold the line — setup is what makes
-  the rest possible. Eat into task 1 stretch first, then task 2
-  validation.
-- Task 2 is the workshop's headline demo. If you have to choose
-  between depth on task 1 and depth on task 2, keep task 2 deep.
+If task 0 setup runs long, hold the line — setup is what makes the
+rest possible. Eat into task 1's stretch goals first, then task 2's
+validation, before touching task 2's solver-build time. If you have
+to choose between depth on task 1 and depth on task 2, keep task 2
+deep — it's the headline demo.
 
 ## Task 0 facilitation tips
 
