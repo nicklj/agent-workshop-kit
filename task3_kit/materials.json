@@ -1,0 +1,24 @@
+{
+  "material_A": {
+    "name": "silicon",
+    "z_range_m": [0.000, 0.005],
+    "density_kg_m3": 2330,
+    "specific_heat_J_kg_K": 700,
+    "thermal_conductivity_W_m_K": 148,
+    "youngs_modulus_Pa": 130e9,
+    "poisson_ratio": 0.28,
+    "thermal_expansion_per_K": 2.6e-6
+  },
+  "material_B": {
+    "name": "copper",
+    "z_range_m": [0.005, 0.010],
+    "density_kg_m3": 8960,
+    "specific_heat_J_kg_K": 385,
+    "thermal_conductivity_W_m_K": 401,
+    "youngs_modulus_Pa": 110e9,
+    "poisson_ratio": 0.34,
+    "thermal_expansion_per_K": 16.7e-6
+  },
+  "T_ref_K": 298.0,
+  "notes": "Material A is the heated (chip) layer at z=0. Material B is the spreader at z=L_z. Properties are temperature-independent."
+}
