@@ -38,32 +38,46 @@ completely.
 
 ### Point `$WORKSHOP` at the kit
 
-Unpack the workshop kit wherever you like, then set `$WORKSHOP` to that
-folder. Every command below — and in tasks 1 and 2 — uses `$WORKSHOP`,
-so they're identical for everyone regardless of where you put the kit.
-Add it to your shell rc so it survives new terminals:
+Unpack the workshop kit wherever you like, then set `WORKSHOP` to that
+folder. Every command below — and in tasks 1 and 2 — uses it, so
+they're identical for everyone regardless of where you put the kit.
+Persist it so new terminals see it.
+
+(`WORKSHOP` is just a path string — it does *not* change which Python
+you get; only activating the venv does that.)
+
+**macOS / Linux** — referenced as `$WORKSHOP`:
 
 ```bash
 echo 'export WORKSHOP="/path/to/workshop"' >> ~/.zshrc   # edit the path
 source ~/.zshrc
+ls "$WORKSHOP/requirements.txt"   # should exist
 ```
 
-(`$WORKSHOP` is just a path string — it does *not* change which Python
-you get; only activating the venv does that.) Verify:
+**Windows (PowerShell)** — referenced as `$env:WORKSHOP`. `setx`
+persists to *future* terminals, so also set it for the current one:
 
-```bash
-ls "$WORKSHOP/requirements.txt"   # should exist
+```powershell
+setx WORKSHOP "C:\path\to\workshop"     # edit the path; persists to new terminals
+$env:WORKSHOP = "C:\path\to\workshop"   # also set it for this terminal
+Test-Path "$env:WORKSHOP\requirements.txt"   # should print True
 ```
 
 ### Install uv
 
-macOS / Linux:
+**macOS / Linux:**
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-Verify:
+**Windows (PowerShell):**
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+Verify (either platform), opening a new terminal if `uv` isn't found:
 
 ```bash
 uv --version
@@ -71,12 +85,28 @@ uv --version
 
 ### Create the environment
 
+**macOS / Linux:**
+
 ```bash
 cd "$WORKSHOP"               # the folder containing requirements.txt
 uv venv .venv --python 3.12
 source .venv/bin/activate
 uv pip install -r requirements.txt
 ```
+
+**Windows (PowerShell):**
+
+```powershell
+cd $env:WORKSHOP             # the folder containing requirements.txt
+uv venv .venv --python 3.12
+.venv\Scripts\Activate.ps1
+uv pip install -r requirements.txt
+```
+
+> Windows: if PowerShell refuses to run `Activate.ps1` with an
+> execution-policy error, run this once and retry:
+> `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`. Or use
+> `cmd.exe` and activate with `.venv\Scripts\activate.bat`.
 
 The pinned versions in `requirements.txt` are verified against the
 Task 2 reference solver — don't install the packages loose, or a
@@ -99,11 +129,15 @@ You should see `ok` printed. If not, stop and ask.
 
 Pick whichever install method works on your machine:
 
-| Method | Command |
-|--------|---------|
-| Install script | `curl -fsSL https://opencode.ai/install \| bash` |
-| Homebrew | `brew install sst/tap/opencode` |
-| npm | `npm install -g opencode-ai` |
+| Platform | Method | Command |
+|----------|--------|---------|
+| macOS / Linux | Install script | `curl -fsSL https://opencode.ai/install \| bash` |
+| macOS / Linux | Homebrew | `brew install sst/tap/opencode` |
+| any (needs Node.js) | npm | `npm install -g opencode-ai` |
+
+**Windows:** use the npm method (`npm install -g opencode-ai`). It
+needs Node.js first — install from <https://nodejs.org> (LTS) if you
+don't have it (`node --version` to check).
 
 Verify:
 
@@ -111,27 +145,41 @@ Verify:
 opencode --version
 ```
 
-If `opencode` isn't on your PATH, your install script may have put the
-binary in `~/.opencode/bin` or `~/.local/bin` — add that to your
-shell's `PATH` and re-open the terminal.
+If `opencode` isn't on your PATH: on macOS / Linux the install script
+may have put the binary in `~/.opencode/bin` or `~/.local/bin` — add
+that to your shell's `PATH` and re-open the terminal. On Windows, open
+a new terminal so the npm global bin directory is picked up.
 
 ---
 
 ## Step 4 — give OpenCode your API key and model (~3 min)
 
-Set the API key as an environment variable in your shell rc file
-(`~/.zshrc` on macOS by default, or `~/.bashrc`):
+Set the API key as a persistent environment variable.
+
+**macOS / Linux** — add to your shell rc (`~/.zshrc` on macOS, or
+`~/.bashrc`):
 
 ```bash
 echo 'export OPENAI_API_KEY="sk-..."' >> ~/.zshrc
 source ~/.zshrc
 ```
 
+**Windows (PowerShell):**
+
+```powershell
+setx OPENAI_API_KEY "sk-..."        # persists to new terminals
+$env:OPENAI_API_KEY = "sk-..."      # also set it for this terminal
+```
+
 Replace `sk-...` with the key from step 1.
 
 ### Configure OpenCode to use gpt-5.4-mini
 
-Create or edit `~/.config/opencode/config.json`:
+Create or edit OpenCode's config file:
+
+- **macOS / Linux:** `~/.config/opencode/config.json`
+- **Windows:** `%USERPROFILE%\.config\opencode\config.json`
+  (in PowerShell: `$env:USERPROFILE\.config\opencode\config.json`)
 
 ```json
 {
@@ -140,28 +188,33 @@ Create or edit `~/.config/opencode/config.json`:
 }
 ```
 
-(Exact field names may vary slightly between OpenCode versions —
-check `opencode --help` or the docs if the JSON above is rejected.
-The single requirement is that the active model resolves to
-`gpt-5.4-mini` via the OpenAI provider.)
+(Exact field names and the config location may vary slightly between
+OpenCode versions — check `opencode --help` or the docs if the JSON
+above is rejected. The single requirement is that the active model
+resolves to `gpt-5.4-mini` via the OpenAI provider.)
 
 ### Activate the workshop env before launching OpenCode
 
 So that any Python the agent runs uses the workshop environment,
 **activate the env in each terminal right before you launch
-OpenCode.** Activation puts `.venv/bin` first on `PATH` for that
+OpenCode.** Activation puts the venv first on `PATH` for that
 terminal only — OpenCode (and the `python` it shells out to) inherits
-it, and nothing permanent is changed in your shell rc.
+it, and nothing permanent is changed.
+
+**macOS / Linux:**
 
 ```bash
 source "$WORKSHOP/.venv/bin/activate"
-```
-
-Verify:
-
-```bash
 which python
 # should print $WORKSHOP/.venv/bin/python
+```
+
+**Windows (PowerShell):**
+
+```powershell
+& "$env:WORKSHOP\.venv\Scripts\Activate.ps1"
+Get-Command python | Select-Object -ExpandProperty Source
+# should print ...\.venv\Scripts\python.exe
 ```
 
 > Remember this line — you'll run it in **every new terminal** before
@@ -170,9 +223,11 @@ which python
 
 > **Fallback (only if needed):** if smoke test #3 below shows the
 > wrong Python *even after activating*, OpenCode may be spawning a
-> fresh login shell. In that case add the env to PATH permanently:
-> `echo 'export PATH="$WORKSHOP/.venv/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc`
-> and remove that line after the workshop.
+> fresh shell that drops the activation. Put the venv on PATH instead:
+> - macOS / Linux: `echo 'export PATH="$WORKSHOP/.venv/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc`
+> - Windows (PowerShell): `setx PATH "$env:WORKSHOP\.venv\Scripts;$env:PATH"` then open a new terminal
+>
+> Undo it after the workshop.
 
 ---
 
@@ -181,9 +236,19 @@ which python
 In a fresh terminal (so the new env vars are loaded), activate the
 workshop env first, then launch OpenCode in any empty folder:
 
+**macOS / Linux:**
+
 ```bash
 source "$WORKSHOP/.venv/bin/activate"
 mkdir ~/opencode_smoke && cd ~/opencode_smoke
+opencode
+```
+
+**Windows (PowerShell):**
+
+```powershell
+& "$env:WORKSHOP\.venv\Scripts\Activate.ps1"
+mkdir $HOME\opencode_smoke; cd $HOME\opencode_smoke
 opencode
 ```
 
@@ -194,7 +259,9 @@ sure each one actually executes:
    It should call a shell/list tool and report that the folder is
    empty.
 2. **"Create a file called `hello.txt` with the text 'hello workshop'."**
-   It should write the file. Then in another terminal: `cat ~/opencode_smoke/hello.txt`
+   It should write the file. Then in another terminal confirm it:
+   `cat ~/opencode_smoke/hello.txt` (macOS / Linux) or
+   `type $HOME\opencode_smoke\hello.txt` (Windows PowerShell).
 3. **"Run `python -c 'import pandas; print(pandas.__version__)'` and
    tell me the version."**
    It should execute, capture stdout, and report a version number.
@@ -209,14 +276,17 @@ tasks rely on the agent being able to run Python and see its output.
 Tick off:
 
 - [ ] `opencode --version` works
-- [ ] `$WORKSHOP` is set (`echo "$WORKSHOP"` prints the kit folder)
-- [ ] After `source "$WORKSHOP/.venv/bin/activate"`, `which python`
-      prints `$WORKSHOP/.venv/bin/python`
+- [ ] `WORKSHOP` is set — macOS/Linux `echo "$WORKSHOP"`, Windows
+      `echo $env:WORKSHOP` — prints the kit folder
+- [ ] After activating, `python` resolves to the venv — macOS/Linux
+      `which python` → `$WORKSHOP/.venv/bin/python`; Windows
+      `Get-Command python` → `...\.venv\Scripts\python.exe`
 - [ ] `python -c "import pandas, matplotlib, sklearn, skfem"` succeeds
       (with the env active)
 - [ ] Smoke test #3 above returned a real version number
 - [ ] You can read your OpenAI billing page and see your $5 balance
-- [ ] You know to run `source "$WORKSHOP/.venv/bin/activate"` in
-      every new terminal before launching `opencode`
+- [ ] You know to activate the env in every new terminal before
+      launching `opencode` (`source "$WORKSHOP/.venv/bin/activate"` /
+      `& "$env:WORKSHOP\.venv\Scripts\Activate.ps1"`)
 
 If all of these are checked, you're good for tasks 1 and 2.

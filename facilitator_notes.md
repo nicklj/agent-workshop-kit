@@ -57,10 +57,19 @@ moves under "stretch".
 
 - Have a "buddy system": pair anyone whose terminal is unfamiliar
   with someone who's comfortable. The most common stumble is
-  forgetting to run `source "$WORKSHOP/.venv/bin/activate"` in a
-  new terminal before `opencode` — `which python` is the quick check.
-  If activation works in the shell but the agent's `python` still
-  isn't the venv, use the PATH fallback in `SETUP.md` step 4.
+  forgetting to activate the venv in a new terminal before `opencode`
+  — macOS/Linux `source "$WORKSHOP/.venv/bin/activate"`, Windows
+  `& "$env:WORKSHOP\.venv\Scripts\Activate.ps1"`. `which python` /
+  `Get-Command python` is the quick check. If activation works in the
+  shell but the agent's `python` still isn't the venv, use the PATH
+  fallback in `SETUP.md` step 4.
+- **Windows specifics:** uv/OpenCode are installed via the PowerShell
+  installer / npm (needs Node.js) — see `SETUP.md`. Two likely snags:
+  (1) PowerShell blocks `Activate.ps1` with an execution-policy error
+  → `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once; (2)
+  `setx` only affects *new* terminals, so a participant who just ran
+  it needs to open a fresh PowerShell (or also set `$env:WORKSHOP` in
+  the current one).
 - The OpenAI API key is the step that takes longest — phone
   verification on a new account can take 5+ minutes. Suggest people
   start that step *first* and do the uv/OpenCode install in parallel

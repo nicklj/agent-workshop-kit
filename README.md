@@ -107,6 +107,8 @@ solution/hints files or the other task's kit. Assumes `$WORKSHOP`
 points at the kit folder (see `task0_kit/SETUP.md`) — activate the env
 first in every terminal so the agent's `python` is the workshop env.
 
+macOS / Linux:
+
 ```bash
 # Task 0 — already in front of them
 cd "$WORKSHOP/task0_kit" && less SETUP.md
@@ -121,6 +123,25 @@ opencode
 source "$WORKSHOP/.venv/bin/activate"
 cp -r "$WORKSHOP/task2_kit" ~/agent_task2
 cd ~/agent_task2
+opencode
+```
+
+Windows (PowerShell):
+
+```powershell
+# Task 0 — already in front of them
+Get-Content "$env:WORKSHOP\task0_kit\SETUP.md"
+
+# Task 1 main
+& "$env:WORKSHOP\.venv\Scripts\Activate.ps1"
+Copy-Item -Recurse "$env:WORKSHOP\task1_kit" $HOME\agent_task1
+cd $HOME\agent_task1
+opencode
+
+# Task 2 deep
+& "$env:WORKSHOP\.venv\Scripts\Activate.ps1"
+Copy-Item -Recurse "$env:WORKSHOP\task2_kit" $HOME\agent_task2
+cd $HOME\agent_task2
 opencode
 ```
 

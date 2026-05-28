@@ -22,8 +22,8 @@ out before the workshop, not in the room.
 
 ## What you need to bring
 
-- A laptop (macOS or Linux preferred; Windows works via WSL but is
-  rougher — flag in advance if that's you).
+- A laptop. macOS, Linux, and Windows are all supported — Windows
+  steps below use PowerShell (no WSL required).
 - The ability to install command-line tools (admin rights or
   equivalent).
 - ~20 minutes for the prep below.
@@ -60,20 +60,18 @@ We use a **project-local** `.venv` *inside the workshop folder* —
 environment you already have. Deleting the workshop folder afterwards
 removes it cleanly.
 
-First, unpack the workshop kit anywhere and point `$WORKSHOP` at it.
-Every command below uses `$WORKSHOP`, so they're identical for everyone
-regardless of where you put the kit. Add it to your shell rc so it
-survives new terminals:
+First, unpack the workshop kit anywhere and point `WORKSHOP` at it.
+Every command below uses it, so they're identical for everyone
+regardless of where you put the kit. Persist it so new terminals see
+it.
+
+**macOS / Linux** (referenced as `$WORKSHOP`):
 
 ```bash
 echo 'export WORKSHOP="/path/to/workshop"' >> ~/.zshrc   # edit the path
 source ~/.zshrc
 ls "$WORKSHOP/requirements.txt"   # should exist
-```
 
-macOS / Linux:
-
-```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 cd "$WORKSHOP"               # the folder containing requirements.txt
 uv venv .venv --python 3.12
@@ -81,10 +79,27 @@ source .venv/bin/activate
 uv pip install -r requirements.txt
 ```
 
-(`requirements.txt` ships in the workshop kit with pinned versions.)
+**Windows (PowerShell)** (referenced as `$env:WORKSHOP`; `setx`
+persists to future terminals, so also set it for the current one):
+
+```powershell
+setx WORKSHOP "C:\path\to\workshop"     # edit the path
+$env:WORKSHOP = "C:\path\to\workshop"
+Test-Path "$env:WORKSHOP\requirements.txt"   # should print True
+
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+cd $env:WORKSHOP
+uv venv .venv --python 3.12
+.venv\Scripts\Activate.ps1
+uv pip install -r requirements.txt
+```
+
+(`requirements.txt` ships in the workshop kit with pinned versions. If
+PowerShell blocks `Activate.ps1`, run
+`Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once and retry.)
 
 Verify everything imports — with the env active, plain `python` is the
-workshop env:
+workshop env (same on both platforms):
 
 ```bash
 python -c "import pandas, matplotlib, sklearn, skfem; print('ok')"
@@ -96,27 +111,32 @@ full error message.
 ## Step 3 — save your API key + confirm activation works (~2 min)
 
 We **won't** put the venv on your PATH permanently — instead you'll
-activate it per terminal on the day (`source
-"$WORKSHOP/.venv/bin/activate"`). Nothing leaks into your normal shell.
+activate it per terminal on the day. Nothing leaks into your normal
+shell. The one thing worth saving permanently is your API key.
 
-The one thing worth saving permanently is your API key. Add it to your
-shell rc file (`~/.zshrc` on macOS, `~/.bashrc` on Linux):
+**macOS / Linux** — add to your shell rc (`~/.zshrc` / `~/.bashrc`):
 
 ```bash
 echo 'export OPENAI_API_KEY="sk-..."' >> ~/.zshrc
 source ~/.zshrc
-```
 
-Replace `sk-...` with the key from step 1. Now confirm activation
-resolves Python correctly:
-
-```bash
 source "$WORKSHOP/.venv/bin/activate"
-which python
-# should print $WORKSHOP/.venv/bin/python
-echo $OPENAI_API_KEY | head -c 7
-# should print "sk-" followed by 4 chars (don't paste the whole key)
+which python                       # -> $WORKSHOP/.venv/bin/python
+echo $OPENAI_API_KEY | head -c 7   # -> "sk-" + 4 chars (don't paste the whole key)
 ```
+
+**Windows (PowerShell):**
+
+```powershell
+setx OPENAI_API_KEY "sk-..."
+$env:OPENAI_API_KEY = "sk-..."
+
+& "$env:WORKSHOP\.venv\Scripts\Activate.ps1"
+Get-Command python | Select-Object -ExpandProperty Source   # -> ...\.venv\Scripts\python.exe
+$env:OPENAI_API_KEY.Substring(0,7)                          # -> "sk-" + 4 chars
+```
+
+Replace `sk-...` with the key from step 1.
 
 ## What we'll do in the room
 
