@@ -33,9 +33,9 @@ workshop/
 
 Walk every participant through: create an OpenAI account → top up $5
 → generate an API key → install `uv` and create a project-local
-`.venv` in the workshop folder → install OpenCode → point OpenCode at
-the API key and `gpt-5.4-mini` → activate the `.venv` before launching
-OpenCode → smoke-test one tool call.
+`.venv` in the workshop folder → install OpenCode → log in with
+`opencode auth login` and select `gpt-5.4-mini` in the TUI → activate
+the `.venv` before launching OpenCode → smoke-test one tool call.
 
 Full step-by-step in `task0_kit/SETUP.md`.
 

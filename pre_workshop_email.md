@@ -43,7 +43,7 @@ new accounts that can take 5+ minutes to clear.
    <https://platform.openai.com/api-keys>
 5. **Create new secret key**, name it `workshop`, and **copy the key
    immediately** — OpenAI won't show it again. Paste it into a note
-   you trust (we'll move it into a shell env var on workshop day).
+   you trust — you'll hand it to OpenCode on workshop day.
 
 > If you'd prefer not to charge $5 to a personal card, reply to this
 > email — I have a small number of pre-funded keys we can hand out at
@@ -108,40 +108,35 @@ python -c "import pandas, matplotlib, sklearn, skfem; print('ok')"
 You should see `ok`. If you see an `ImportError`, reply with the
 full error message.
 
-## Step 3 — save your API key + confirm activation works (~2 min)
+## Step 3 — confirm activation works (~2 min)
 
 We **won't** put the venv on your PATH permanently — instead you'll
 activate it per terminal on the day. Nothing leaks into your normal
-shell. The one thing worth saving permanently is your API key.
+shell. Confirm activation resolves Python to the workshop env:
 
-**macOS / Linux** — add to your shell rc (`~/.zshrc` / `~/.bashrc`):
+**macOS / Linux:**
 
 ```bash
-echo 'export OPENAI_API_KEY="sk-..."' >> ~/.zshrc
-source ~/.zshrc
-
 source "$WORKSHOP/.venv/bin/activate"
-which python                       # -> $WORKSHOP/.venv/bin/python
-echo $OPENAI_API_KEY | head -c 7   # -> "sk-" + 4 chars (don't paste the whole key)
+which python   # -> $WORKSHOP/.venv/bin/python
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-setx OPENAI_API_KEY "sk-..."
-$env:OPENAI_API_KEY = "sk-..."
-
 & "$env:WORKSHOP\.venv\Scripts\Activate.ps1"
 Get-Command python | Select-Object -ExpandProperty Source   # -> ...\.venv\Scripts\python.exe
-$env:OPENAI_API_KEY.Substring(0,7)                          # -> "sk-" + 4 chars
 ```
 
-Replace `sk-...` with the key from step 1.
+You don't need to do anything else with your API key before the day —
+we'll add it to OpenCode interactively in the room (`opencode auth
+login`). Just keep the key from step 1 handy.
 
 ## What we'll do in the room
 
-- ~10 min: install OpenCode + smoke-test that the agent can read,
-  write, and run Python.
+- ~10 min: install OpenCode, log in with your API key (`opencode auth
+  login`), select the `gpt-5.4-mini` model, and smoke-test that the
+  agent can read, write, and run Python.
 - ~30 min: Task 1 — hand the agent a 200-design parametric sweep
   and have it produce an engineering memo with a validated
   predictive model. Real dataset, planted data quality issues.

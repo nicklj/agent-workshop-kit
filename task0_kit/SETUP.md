@@ -19,7 +19,7 @@ past a broken step.
    https://platform.openai.com/api-keys
 5. Click **Create new secret key**, name it `workshop`, and **copy the
    key now** — you won't be able to see it again. Paste it somewhere
-   you trust temporarily (we'll move it into an env var in step 4).
+   you trust temporarily (we'll hand it to OpenCode in step 4).
 
 > Tip: OpenAI's free tier credits will not work here — top up with $5
 > of real credit. The first prompt with an empty wallet returns a
@@ -154,44 +154,51 @@ a new terminal so the npm global bin directory is picked up.
 
 ## Step 4 — give OpenCode your API key and model (~3 min)
 
-Set the API key as a persistent environment variable.
+Do this through OpenCode's own interface — no config files, no
+environment variables to edit.
 
-**macOS / Linux** — add to your shell rc (`~/.zshrc` on macOS, or
-`~/.bashrc`):
+### Add your API key (`opencode auth login`)
+
+Run this and follow the prompts (same command on macOS, Linux, and
+Windows PowerShell):
 
 ```bash
-echo 'export OPENAI_API_KEY="sk-..."' >> ~/.zshrc
-source ~/.zshrc
+opencode auth login
 ```
 
-**Windows (PowerShell):**
+1. Use the arrow keys to select **OpenAI** from the provider list.
+2. Choose the **API Key** method.
+3. Paste the key from step 1 and press Enter.
 
-```powershell
-setx OPENAI_API_KEY "sk-..."        # persists to new terminals
-$env:OPENAI_API_KEY = "sk-..."      # also set it for this terminal
+OpenCode stores the key in its own credential store, so you don't need
+the `OPENAI_API_KEY` environment variable. Confirm it's registered:
+
+```bash
+opencode auth list
+# should list "openai"
 ```
 
-Replace `sk-...` with the key from step 1.
+### Select the model (`gpt-5.4-mini`)
 
-### Configure OpenCode to use gpt-5.4-mini
+OpenCode remembers the last model you picked, so set it once via the
+TUI. Launch OpenCode in any folder:
 
-Create or edit OpenCode's config file:
-
-- **macOS / Linux:** `~/.config/opencode/config.json`
-- **Windows:** `%USERPROFILE%\.config\opencode\config.json`
-  (in PowerShell: `$env:USERPROFILE\.config\opencode\config.json`)
-
-```json
-{
-  "model": "openai/gpt-5.4-mini",
-  "autoshare": false
-}
+```bash
+opencode
 ```
 
-(Exact field names and the config location may vary slightly between
-OpenCode versions — check `opencode --help` or the docs if the JSON
-above is rejected. The single requirement is that the active model
-resolves to `gpt-5.4-mini` via the OpenAI provider.)
+In the TUI, open the model picker — type `/models` and press Enter (or
+use the model-switch keybind shown in the footer; `/help` lists the
+commands) — then choose **OpenAI → `gpt-5.4-mini`**. Your choice
+persists for next time.
+
+> One-shot alternative: launch directly on the model with
+> `opencode --model openai/gpt-5.4-mini`. The single requirement is
+> that the active model resolves to `gpt-5.4-mini` via the OpenAI
+> provider — the model name shows in the TUI footer.
+
+> Fallback: if `opencode auth login` gives you trouble, OpenCode also
+> reads an `OPENAI_API_KEY` environment variable if one is set.
 
 ### Activate the workshop env before launching OpenCode
 
@@ -276,6 +283,8 @@ tasks rely on the agent being able to run Python and see its output.
 Tick off:
 
 - [ ] `opencode --version` works
+- [ ] `opencode auth list` shows `openai` (key registered via the TUI)
+- [ ] OpenCode's active model is `gpt-5.4-mini` (shown in the TUI footer)
 - [ ] `WORKSHOP` is set — macOS/Linux `echo "$WORKSHOP"`, Windows
       `echo $env:WORKSHOP` — prints the kit folder
 - [ ] After activating, `python` resolves to the venv — macOS/Linux
