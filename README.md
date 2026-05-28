@@ -1,4 +1,4 @@
-# IHPC agent workshop kit
+# Agent workshop kit
 
 Hands-on workshop teaching agentic AI for research workflows, using
 **OpenCode** + OpenAI's **gpt-5.4-mini** via API.

@@ -45,9 +45,9 @@ new accounts that can take 5+ minutes to clear.
    immediately** — OpenAI won't show it again. Paste it into a note
    you trust (we'll move it into a shell env var on workshop day).
 
-> If you're at IHPC and would prefer not to charge $5 to a personal
-> card, reply to this email — I have a small number of pre-funded
-> keys we can hand out at the door.
+> If you'd prefer not to charge $5 to a personal card, reply to this
+> email — I have a small number of pre-funded keys we can hand out at
+> the door.
 
 > Free-tier credits don't work for API calls. You need the $5 top-up
 > on a real card. The first prompt with an empty wallet returns a
