@@ -52,10 +52,15 @@ uv --version
 ```bash
 uv venv ~/.venv --python 3.12
 source ~/.venv/bin/activate
-uv pip install pandas matplotlib scikit-learn scikit-fem
+uv pip install -r requirements.txt
 ```
 
-(`scikit-fem` is for task 2. The first three are for task 1.)
+Run this from the folder that contains `requirements.txt` (the
+workshop kit root). The pinned versions are verified against the
+Task 2 reference solver — don't install the packages loose, or a
+future scikit-fem release can break the solver API mid-workshop.
+(`scikit-fem` is for task 2; pandas / matplotlib / scikit-learn are
+for task 1.)
 
 Verify everything imports:
 

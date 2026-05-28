@@ -1,14 +1,15 @@
 """Reference 3D transient-thermal + steady-state thermomechanical FEM."""
 import json
+from pathlib import Path
 import numpy as np
-import scipy.sparse as sp
-from scipy.sparse.linalg import splu, spsolve
+from scipy.sparse.linalg import spsolve
 from skfem import MeshTet, Basis, FacetBasis, ElementTetP1, ElementVector
 from skfem import BilinearForm, LinearForm, asm, condense
-from skfem.helpers import dot, grad, ddot, sym_grad, trace, eye
+from skfem.helpers import dot, grad, ddot, sym_grad, trace, div
 
-# Load materials
-mats = json.load(open("/Users/liuj/SynologyDrive/1SM/0AMM/presentation/agent2/workshop/task2_kit/materials.json"))
+# Load materials (script-relative path, so any facilitator can run this).
+HERE = Path(__file__).resolve().parent
+mats = json.loads((HERE / "task2_kit" / "materials.json").read_text())
 A_props = mats["material_A"]
 B_props = mats["material_B"]
 T_ref = mats["T_ref_K"]
@@ -150,9 +151,9 @@ def lame(E_mod, nu):
     return lam, mu
 
 E_A = A_props["youngs_modulus_Pa"]
-nu_A = 0.28
+nu_A = A_props["poisson_ratio"]
 E_B = B_props["youngs_modulus_Pa"]
-nu_B = 0.34
+nu_B = B_props["poisson_ratio"]
 lam_A, mu_A = lame(E_A, nu_A)
 lam_B, mu_B = lame(E_B, nu_B)
 alpha_A = A_props["thermal_expansion_per_K"]
@@ -165,24 +166,12 @@ def elastic(u, v, w):
     eps_v = sym_grad(v)
     return 2 * mu * ddot(eps_u, eps_v) + lam * trace(eps_u) * trace(eps_v)
 
-# Build temperature interpolation: T per element at quadrature points
-# We'll interpolate T from basis_T onto the mechanical basis quadrature
-T_interp_A = basis_uA.with_element(ElementTetP1()).interpolate(T)
-T_interp_B = basis_uB.with_element(ElementTetP1()).interpolate(T)
-
-@LinearForm
-def thermal_load(v, w):
-    # Thermal load: integral over each elem of  (3K alpha (T - T_ref)) div(v)
-    # For isotropic linear elasticity, thermal stress is sigma_th = -3 K alpha dT I
-    # where K_bulk = E / (3(1-2nu)) = lam + (2/3) mu
-    K_bulk = w.lam + (2.0/3.0) * w.mu
-    return 3 * K_bulk * w.alpha * (w.T - T_ref) * div_v(v)
-
-# helper for divergence of vector field
-from skfem.helpers import div
 @LinearForm
 def thermal_load_form(v, w):
-    K_bulk = w["lam"] + (2.0/3.0) * w["mu"]
+    # Thermal load: integral over each elem of (3 K_bulk alpha (T - T_ref)) div(v).
+    # For isotropic linear elasticity, sigma_th = -3 K_bulk alpha dT I,
+    # with K_bulk = E / (3(1-2nu)) = lam + (2/3) mu.
+    K_bulk = w["lam"] + (2.0 / 3.0) * w["mu"]
     return 3 * K_bulk * w["alpha"] * (w["T"] - T_ref) * div(v)
 
 K_mech = (asm(elastic, basis_uA, lam=lam_A, mu=mu_A)

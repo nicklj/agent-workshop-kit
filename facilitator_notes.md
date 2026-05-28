@@ -1,24 +1,57 @@
 # Facilitator notes
 
-## Workshop schedule (2 hours)
+## Workshop schedule (2 hours, assumes pre-work was done)
+
+This schedule assumes participants received `pre_workshop_email.md`
+3–4 days out and arrived with OpenAI account + $5 credit + API key +
+`~/.venv` + PATH already done. If you skipped the pre-work email, see
+"Fallback schedule" below.
 
 | Time | Block |
 |------|-------|
 | 0:00–0:05 | Intro |
-| 0:05–0:30 | Task 0: setup |
-| 0:30–1:00 | Task 1: data analysis + regression |
-| 1:00–1:50 | Task 2: build the 3D FEM solver |
+| 0:05–0:20 | Task 0: in-room finish (OpenCode install + smoke test) |
+| 0:20–0:55 | Task 1: data analysis + regression (35 min) |
+| 0:55–1:50 | Task 2: build the 3D FEM solver (55 min) |
 | 1:50–2:00 | Debrief |
 
-Task 2 needs ~50 min minimum to get from blank-folder to validated
+Task 2 needs ~55 min minimum to get from blank-folder to validated
 output. Don't compress below that — partial 3D FEM is more
 demoralising than a complete simpler task.
 
-If task 0 setup runs long, hold the line — setup is what makes the
-rest possible. Eat into task 1's stretch goals first, then task 2's
-validation, before touching task 2's solver-build time. If you have
-to choose between depth on task 1 and depth on task 2, keep task 2
+If Task 0 in-room runs long anyway (OpenCode install hits a snag,
+network blocks the API), hold the line — setup is what makes the
+rest possible. Eat into Task 1's stretch goals first, then Task 2's
+validation, before touching Task 2's solver-build time. If you have
+to choose between depth on Task 1 and depth on Task 2, keep Task 2
 deep — it's the headline demo.
+
+### Fallback schedule (pre-work email not sent)
+
+If you couldn't send the pre-work email and people are arriving cold:
+
+| Time | Block |
+|------|-------|
+| 0:00–0:05 | Intro |
+| 0:05–0:30 | Task 0: full setup from scratch |
+| 0:30–1:00 | Task 1: data analysis (compressed) |
+| 1:00–1:50 | Task 2: thermal solve only — drop mechanical to stretch |
+| 1:50–2:00 | Debrief |
+
+In this mode, **explicitly tell participants Task 2's mechanical
+solve is a stretch goal**, not required. The deliverables become:
+transient T(t), centerline T profile, validation against the 1-D
+analytical limit. The mechanical/stress half stays in the BRIEF but
+moves under "stretch".
+
+### Hard-stop checkpoints (either schedule)
+
+- **By 0:25** (pre-work schedule) or **0:35** (fallback): every
+  participant has OpenCode running and the smoke test passing. Anyone
+  who isn't there gets paired with a working neighbour.
+- **By 1:35** (pre-work schedule): any participant still pre-mechanical
+  on Task 2 switches to projector demo mode. Don't let people grind
+  past 1:40 with no chance of reaching validation.
 
 ## Task 0 facilitation tips
 
