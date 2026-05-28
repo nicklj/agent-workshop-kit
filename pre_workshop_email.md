@@ -125,9 +125,9 @@ step 1 handy.
 ## What we'll do in the room
 
 - ~10 min: install OpenCode, log in with your API key (`opencode auth
-  login`), select the `gpt-5.4-mini` model, add a one-line rule that
-  points the agent at the workshop venv, and smoke-test that the agent
-  can read, write, and run Python.
+  login`), select the `gpt-5.4-mini` model, and smoke-test that the
+  agent can read, write, and run Python. (The task kits already include
+  a rule that points the agent at the workshop venv.)
 - ~30 min: Task 1 — hand the agent a 200-design parametric sweep
   and have it produce an engineering memo with a validated
   predictive model. Real dataset, planted data quality issues.

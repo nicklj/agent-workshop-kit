@@ -204,43 +204,25 @@ persists for next time.
 > Fallback: if `opencode auth login` gives you trouble, OpenCode also
 > reads an `OPENAI_API_KEY` environment variable if one is set.
 
-### Tell OpenCode to always use the workshop Python (one-time rule)
+### How OpenCode knows to use the workshop Python
 
-Rather than activating the venv in every terminal, we give the agent a
+Rather than activating the venv in every terminal, the agent gets a
 standing instruction: **always run Python from the workshop venv.**
-OpenCode reads a global rules file at `~/.config/opencode/AGENTS.md`
-on every session, in every folder — so this is done once and applies
-to the smoke test and both tasks. The command below writes the rule
-with your venv's **absolute** Python path baked in.
+OpenCode reads a project `AGENTS.md` file from the folder it's launched
+in, on every session. **Each task kit already ships with one** (see
+`task1_kit/AGENTS.md` and `task2_kit/AGENTS.md`) that points the agent
+at `$WORKSHOP/.venv/bin/python` (Windows: `…\.venv\Scripts\python.exe`).
 
-**macOS / Linux:**
-
-```bash
-mkdir -p ~/.config/opencode
-printf 'In this workshop, always run Python as %s/.venv/bin/python and install packages with %s/.venv/bin/python -m pip. Never use the system python or pip.\n' "$WORKSHOP" "$WORKSHOP" > ~/.config/opencode/AGENTS.md
-cat ~/.config/opencode/AGENTS.md   # check the path is absolute and correct
-```
-
-**Windows (PowerShell):**
-
-```powershell
-$cfg = "$env:USERPROFILE\.config\opencode"
-New-Item -ItemType Directory -Force $cfg | Out-Null
-"In this workshop, always run Python as $env:WORKSHOP\.venv\Scripts\python.exe and install packages with $env:WORKSHOP\.venv\Scripts\python.exe -m pip. Never use the system python or pip." | Set-Content "$cfg\AGENTS.md"
-Get-Content "$cfg\AGENTS.md"   # check the path is absolute and correct
-```
-
-Because the rule names an absolute path, the agent calls the workshop
-Python directly — no PATH, no activation, nothing to remember in new
-terminals.
-
-> This is a global rule that affects all OpenCode sessions on this
-> machine. After the workshop, delete `~/.config/opencode/AGENTS.md`
-> to remove it.
+So there's **nothing to create here** — when you `cd` into a copied
+kit and run `opencode` (tasks 1 and 2), the agent reads that kit's
+`AGENTS.md` and uses the workshop Python automatically. The only
+requirement is that `$WORKSHOP` is set in the terminal you launch
+OpenCode from (step 2) — the shell expands it when the agent runs a
+command.
 
 > **Fallback (only if needed):** if the agent ever runs bare `python`
-> and an import fails, just remind it in chat ("use the workshop venv
-> Python from your rules"), or activate the venv as a hard guarantee:
+> and an import fails, remind it in chat ("use the workshop venv Python
+> from AGENTS.md"), or activate the venv as a hard guarantee:
 > `source "$WORKSHOP/.venv/bin/activate"` (macOS / Linux) /
 > `& "$env:WORKSHOP\.venv\Scripts\Activate.ps1"` (Windows).
 
@@ -249,8 +231,8 @@ terminals.
 ## Step 5 — smoke test (~3 min)
 
 In a fresh terminal (so `$WORKSHOP` is loaded), launch OpenCode in any
-empty folder — no activation needed, the global rule from step 4
-handles Python:
+empty folder. This folder isn't a task kit, so it has no `AGENTS.md` —
+we'll name the workshop Python explicitly in prompt #3 instead:
 
 **macOS / Linux:**
 
@@ -276,15 +258,14 @@ sure each one actually executes:
    It should write the file. Then in another terminal confirm it:
    `cat ~/opencode_smoke/hello.txt` (macOS / Linux) or
    `type $HOME\opencode_smoke\hello.txt` (Windows PowerShell).
-3. **"Import pandas and print its version."**
-   It should run Python — and thanks to the rule from step 4, it
-   should call the **workshop venv** Python (`$WORKSHOP/.venv/...`),
-   capture stdout, and report a version number.
+3. **"Run `$WORKSHOP/.venv/bin/python -c 'import pandas;
+   print(pandas.__version__)'` and tell me the version."** (Windows:
+   `& "$env:WORKSHOP\.venv\Scripts\python.exe" -c "..."`.) It should
+   execute, capture stdout, and report a version number.
 
 If any of these fail — *especially #3* — flag it now. The hands-on
 tasks rely on the agent being able to run the workshop Python and see
-its output. If #3 used the wrong Python, recheck
-`~/.config/opencode/AGENTS.md`.
+its output.
 
 ---
 
@@ -300,10 +281,10 @@ Tick off:
 - [ ] The venv's Python imports the packages — macOS/Linux
       `"$WORKSHOP/.venv/bin/python" -c "import pandas, matplotlib, sklearn, skfem"`;
       Windows `& "$env:WORKSHOP\.venv\Scripts\python.exe" -c "..."`
-- [ ] `~/.config/opencode/AGENTS.md` exists and names your
-      `$WORKSHOP/.venv` Python (absolute path)
-- [ ] Smoke test #3 returned a real version number **and** used the
-      workshop venv Python
+- [ ] Smoke test #3 returned a real version number (the agent ran the
+      workshop venv Python)
+- [ ] You understand the task kits carry an `AGENTS.md` that points
+      the agent at `$WORKSHOP/.venv` — so tasks 1 and 2 need no setup
 - [ ] You can read your OpenAI billing page and see your $5 balance
 
 If all of these are checked, you're good for tasks 1 and 2.

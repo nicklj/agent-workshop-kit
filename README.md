@@ -19,10 +19,12 @@ workshop/
 ├── task0_kit/                      # task 0 — setup walkthrough
 │   └── SETUP.md
 ├── task1_kit/                      # task 1 — given to each participant
+│   ├── AGENTS.md                   # rule: use the workshop .venv Python
 │   ├── BRIEF.md
 │   ├── designs_parameters.csv      # 200 design parameters
 │   └── designs_results.csv         # 199 simulated results (1 row missing on purpose)
 └── task2_kit/                      # task 2 — given to each participant
+    ├── AGENTS.md                   # rule: use the workshop .venv Python
     ├── BRIEF.md
     └── materials.json              # silicon + copper properties; agent writes the solver
 ```
@@ -34,9 +36,9 @@ workshop/
 Walk every participant through: create an OpenAI account → top up $5
 → generate an API key → install `uv` and create a project-local
 `.venv` in the workshop folder → install OpenCode → log in with
-`opencode auth login` and select `gpt-5.4-mini` in the TUI → drop a
-global `AGENTS.md` rule pinning the workshop `.venv` Python →
-smoke-test one tool call.
+`opencode auth login` and select `gpt-5.4-mini` in the TUI →
+smoke-test one tool call. Each task kit ships an `AGENTS.md` that
+pins the workshop `.venv` Python, so the agent uses it automatically.
 
 Full step-by-step in `task0_kit/SETUP.md`.
 
@@ -105,9 +107,10 @@ working on your machine.
 Each participant copies the relevant kit folder to a fresh directory
 and `cd`s in before launching OpenCode. They should not see the
 solution/hints files or the other task's kit. Assumes `$WORKSHOP`
-points at the kit folder and the global `AGENTS.md` rule is in place
-(see `task0_kit/SETUP.md`) — that rule makes the agent use the
-workshop `.venv` Python automatically, so there's nothing to activate.
+points at the kit folder (see `task0_kit/SETUP.md`). Each kit carries
+an `AGENTS.md` that makes the agent use the workshop `.venv` Python
+automatically — copied along with the kit, so there's nothing to
+activate.
 
 macOS / Linux:
 
