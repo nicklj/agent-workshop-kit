@@ -32,9 +32,10 @@ workshop/
 ### Task 0 — setup (~25 min, human-driven)
 
 Walk every participant through: create an OpenAI account → top up $5
-→ generate an API key → install `uv` and create `~/.venv` → install
-OpenCode → point OpenCode at the API key and `gpt-5.4-mini` → put
-`~/.venv/bin` on `PATH` → smoke-test one tool call.
+→ generate an API key → install `uv` and create a project-local
+`.venv` in the workshop folder → install OpenCode → point OpenCode at
+the API key and `gpt-5.4-mini` → activate the `.venv` before launching
+OpenCode → smoke-test one tool call.
 
 Full step-by-step in `task0_kit/SETUP.md`.
 
@@ -102,19 +103,23 @@ working on your machine.
 
 Each participant copies the relevant kit folder to a fresh directory
 and `cd`s in before launching OpenCode. They should not see the
-solution/hints files or the other task's kit.
+solution/hints files or the other task's kit. Assumes `$WORKSHOP`
+points at the kit folder (see `task0_kit/SETUP.md`) — activate the env
+first in every terminal so the agent's `python` is the workshop env.
 
 ```bash
 # Task 0 — already in front of them
-cd workshop/task0_kit && less SETUP.md
+cd "$WORKSHOP/task0_kit" && less SETUP.md
 
 # Task 1 main
-cp -r workshop/task1_kit ~/agent_task1
+source "$WORKSHOP/.venv/bin/activate"
+cp -r "$WORKSHOP/task1_kit" ~/agent_task1
 cd ~/agent_task1
 opencode
 
 # Task 2 deep
-cp -r workshop/task2_kit ~/agent_task2
+source "$WORKSHOP/.venv/bin/activate"
+cp -r "$WORKSHOP/task2_kit" ~/agent_task2
 cd ~/agent_task2
 opencode
 ```
@@ -132,8 +137,9 @@ before. Note:
 - Whether task 2 reaches the correct numbers within tolerance:
   peak T ≈ 344 K on centerline, peak σ_vm ≈ 22 MPa in copper near
   interface, σ_xx interface jump ≈ 24 MPa, t_95 ≈ 0.86 s
-- Whether scikit-fem installed cleanly in `~/.venv` — run
-  `task2_reference_solver.py` yourself first to confirm
+- Whether scikit-fem installed cleanly in the workshop `.venv` — run
+  `task2_reference_solver.py` yourself first to confirm (with the env
+  active: `source "$WORKSHOP/.venv/bin/activate"`)
 - Whether file-edit, CSV-read, and `python -c …` tool calls are clean
 
 Budget check: total token cost for both tasks per participant on

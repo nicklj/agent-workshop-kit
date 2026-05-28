@@ -55,51 +55,65 @@ new accounts that can take 5+ minutes to clear.
 
 ## Step 2 — install `uv` and create the workshop Python env (~5 min)
 
-We standardise on `~/.venv` so everyone has identical pandas /
-matplotlib / scikit-learn / scikit-fem versions.
+We use a **project-local** `.venv` *inside the workshop folder* —
+**not** in your home directory — so this can't disturb any Python
+environment you already have. Deleting the workshop folder afterwards
+removes it cleanly.
+
+First, unpack the workshop kit anywhere and point `$WORKSHOP` at it.
+Every command below uses `$WORKSHOP`, so they're identical for everyone
+regardless of where you put the kit. Add it to your shell rc so it
+survives new terminals:
+
+```bash
+echo 'export WORKSHOP="/path/to/workshop"' >> ~/.zshrc   # edit the path
+source ~/.zshrc
+ls "$WORKSHOP/requirements.txt"   # should exist
+```
 
 macOS / Linux:
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
-uv venv ~/.venv --python 3.12
-source ~/.venv/bin/activate
-```
-
-Then install the pinned dependencies (download
-[`requirements.txt`](./requirements.txt) from the workshop kit and
-run from the folder containing it):
-
-```bash
+cd "$WORKSHOP"               # the folder containing requirements.txt
+uv venv .venv --python 3.12
+source .venv/bin/activate
 uv pip install -r requirements.txt
 ```
 
-Verify everything imports:
+(`requirements.txt` ships in the workshop kit with pinned versions.)
+
+Verify everything imports — with the env active, plain `python` is the
+workshop env:
 
 ```bash
-~/.venv/bin/python -c "import pandas, matplotlib, sklearn, skfem; print('ok')"
+python -c "import pandas, matplotlib, sklearn, skfem; print('ok')"
 ```
 
 You should see `ok`. If you see an `ImportError`, reply with the
 full error message.
 
-## Step 3 — put `~/.venv/bin` on your PATH (~2 min)
+## Step 3 — save your API key + confirm activation works (~2 min)
 
-So that any Python the agent runs uses the workshop environment, add
-this to your shell rc file (`~/.zshrc` on macOS, `~/.bashrc` on
-Linux):
+We **won't** put the venv on your PATH permanently — instead you'll
+activate it per terminal on the day (`source
+"$WORKSHOP/.venv/bin/activate"`). Nothing leaks into your normal shell.
+
+The one thing worth saving permanently is your API key. Add it to your
+shell rc file (`~/.zshrc` on macOS, `~/.bashrc` on Linux):
 
 ```bash
-echo 'export PATH="$HOME/.venv/bin:$PATH"' >> ~/.zshrc
 echo 'export OPENAI_API_KEY="sk-..."' >> ~/.zshrc
 source ~/.zshrc
 ```
 
-Replace `sk-...` with the key from step 1. Verify:
+Replace `sk-...` with the key from step 1. Now confirm activation
+resolves Python correctly:
 
 ```bash
+source "$WORKSHOP/.venv/bin/activate"
 which python
-# should print /Users/<you>/.venv/bin/python
+# should print $WORKSHOP/.venv/bin/python
 echo $OPENAI_API_KEY | head -c 7
 # should print "sk-" followed by 4 chars (don't paste the whole key)
 ```

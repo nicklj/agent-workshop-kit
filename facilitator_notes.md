@@ -4,8 +4,8 @@
 
 This schedule assumes participants received `pre_workshop_email.md`
 3–4 days out and arrived with OpenAI account + $5 credit + API key +
-`~/.venv` + PATH already done. If you skipped the pre-work email, see
-"Fallback schedule" below.
+the project-local `.venv` created and imports passing. If you skipped
+the pre-work email, see "Fallback schedule" below.
 
 | Time | Block |
 |------|-------|
@@ -56,8 +56,11 @@ moves under "stretch".
 ## Task 0 facilitation tips
 
 - Have a "buddy system": pair anyone whose terminal is unfamiliar
-  with someone who's comfortable. Most stumbles are PATH / shell-rc
-  issues, not OpenCode bugs.
+  with someone who's comfortable. The most common stumble is
+  forgetting to run `source "$WORKSHOP/.venv/bin/activate"` in a
+  new terminal before `opencode` — `which python` is the quick check.
+  If activation works in the shell but the agent's `python` still
+  isn't the venv, use the PATH fallback in `SETUP.md` step 4.
 - The OpenAI API key is the step that takes longest — phone
   verification on a new account can take 5+ minutes. Suggest people
   start that step *first* and do the uv/OpenCode install in parallel

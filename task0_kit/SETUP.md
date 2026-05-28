@@ -29,9 +29,31 @@ past a broken step.
 
 ## Step 2 — install `uv` and create the Python environment (~3 min)
 
-We standardise on `~/.venv` as the Python environment all participants
-will share. This keeps everyone's pandas/matplotlib/scikit-learn
-versions identical.
+We create a **project-local** `.venv` *inside the workshop folder* —
+not in your home directory. This keeps everyone's
+pandas/matplotlib/scikit-learn versions identical for the workshop
+**without touching any Python environment you already have.** When the
+workshop is over, deleting the workshop folder removes the env
+completely.
+
+### Point `$WORKSHOP` at the kit
+
+Unpack the workshop kit wherever you like, then set `$WORKSHOP` to that
+folder. Every command below — and in tasks 1 and 2 — uses `$WORKSHOP`,
+so they're identical for everyone regardless of where you put the kit.
+Add it to your shell rc so it survives new terminals:
+
+```bash
+echo 'export WORKSHOP="/path/to/workshop"' >> ~/.zshrc   # edit the path
+source ~/.zshrc
+```
+
+(`$WORKSHOP` is just a path string — it does *not* change which Python
+you get; only activating the venv does that.) Verify:
+
+```bash
+ls "$WORKSHOP/requirements.txt"   # should exist
+```
 
 ### Install uv
 
@@ -50,22 +72,23 @@ uv --version
 ### Create the environment
 
 ```bash
-uv venv ~/.venv --python 3.12
-source ~/.venv/bin/activate
+cd "$WORKSHOP"               # the folder containing requirements.txt
+uv venv .venv --python 3.12
+source .venv/bin/activate
 uv pip install -r requirements.txt
 ```
 
-Run this from the folder that contains `requirements.txt` (the
-workshop kit root). The pinned versions are verified against the
+The pinned versions in `requirements.txt` are verified against the
 Task 2 reference solver — don't install the packages loose, or a
 future scikit-fem release can break the solver API mid-workshop.
 (`scikit-fem` is for task 2; pandas / matplotlib / scikit-learn are
 for task 1.)
 
-Verify everything imports:
+Verify everything imports — with the env active, plain `python` is
+now the workshop env:
 
 ```bash
-~/.venv/bin/python -c "import pandas, matplotlib, sklearn, skfem; print('ok')"
+python -c "import pandas, matplotlib, sklearn, skfem; print('ok')"
 ```
 
 You should see `ok` printed. If not, stop and ask.
@@ -122,32 +145,44 @@ check `opencode --help` or the docs if the JSON above is rejected.
 The single requirement is that the active model resolves to
 `gpt-5.4-mini` via the OpenAI provider.)
 
-### Make `~/.venv/bin` OpenCode's default Python
+### Activate the workshop env before launching OpenCode
 
-So that any Python the agent runs uses the workshop environment, put
-`~/.venv/bin` on your `PATH` *before* launching OpenCode. Add this to
-your shell rc:
+So that any Python the agent runs uses the workshop environment,
+**activate the env in each terminal right before you launch
+OpenCode.** Activation puts `.venv/bin` first on `PATH` for that
+terminal only — OpenCode (and the `python` it shells out to) inherits
+it, and nothing permanent is changed in your shell rc.
 
 ```bash
-echo 'export PATH="$HOME/.venv/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
+source "$WORKSHOP/.venv/bin/activate"
 ```
 
 Verify:
 
 ```bash
 which python
-# should print /Users/<you>/.venv/bin/python
+# should print $WORKSHOP/.venv/bin/python
 ```
+
+> Remember this line — you'll run it in **every new terminal** before
+> `opencode`, including for tasks 1 and 2. If you forget, the agent
+> will use your system Python and the imports will fail.
+
+> **Fallback (only if needed):** if smoke test #3 below shows the
+> wrong Python *even after activating*, OpenCode may be spawning a
+> fresh login shell. In that case add the env to PATH permanently:
+> `echo 'export PATH="$WORKSHOP/.venv/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc`
+> and remove that line after the workshop.
 
 ---
 
 ## Step 5 — smoke test (~3 min)
 
-In a fresh terminal (so the new env vars are loaded), in any empty
-folder:
+In a fresh terminal (so the new env vars are loaded), activate the
+workshop env first, then launch OpenCode in any empty folder:
 
 ```bash
+source "$WORKSHOP/.venv/bin/activate"
 mkdir ~/opencode_smoke && cd ~/opencode_smoke
 opencode
 ```
@@ -174,9 +209,14 @@ tasks rely on the agent being able to run Python and see its output.
 Tick off:
 
 - [ ] `opencode --version` works
-- [ ] `which python` prints `~/.venv/bin/python`
-- [ ] `~/.venv/bin/python -c "import pandas, matplotlib, sklearn, skfem"` succeeds
+- [ ] `$WORKSHOP` is set (`echo "$WORKSHOP"` prints the kit folder)
+- [ ] After `source "$WORKSHOP/.venv/bin/activate"`, `which python`
+      prints `$WORKSHOP/.venv/bin/python`
+- [ ] `python -c "import pandas, matplotlib, sklearn, skfem"` succeeds
+      (with the env active)
 - [ ] Smoke test #3 above returned a real version number
 - [ ] You can read your OpenAI billing page and see your $5 balance
+- [ ] You know to run `source "$WORKSHOP/.venv/bin/activate"` in
+      every new terminal before launching `opencode`
 
-If all six are checked, you're good for tasks 1 and 2.
+If all of these are checked, you're good for tasks 1 and 2.
