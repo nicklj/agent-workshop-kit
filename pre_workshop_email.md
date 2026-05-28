@@ -75,7 +75,6 @@ ls "$WORKSHOP/requirements.txt"   # should exist
 curl -LsSf https://astral.sh/uv/install.sh | sh
 cd "$WORKSHOP"               # the folder containing requirements.txt
 uv venv .venv --python 3.12
-source .venv/bin/activate
 uv pip install -r requirements.txt
 ```
 
@@ -90,53 +89,45 @@ Test-Path "$env:WORKSHOP\requirements.txt"   # should print True
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 cd $env:WORKSHOP
 uv venv .venv --python 3.12
-.venv\Scripts\Activate.ps1
 uv pip install -r requirements.txt
 ```
 
-(`requirements.txt` ships in the workshop kit with pinned versions. If
-PowerShell blocks `Activate.ps1`, run
-`Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once and retry.)
+(`requirements.txt` ships in the workshop kit with pinned versions.
+`uv pip install` targets the `.venv` in the current folder — no
+activation needed.)
 
-Verify everything imports — with the env active, plain `python` is the
-workshop env (same on both platforms):
+## Step 3 — confirm the workshop Python works (~2 min)
 
-```bash
-python -c "import pandas, matplotlib, sklearn, skfem; print('ok')"
-```
-
-You should see `ok`. If you see an `ImportError`, reply with the
-full error message.
-
-## Step 3 — confirm activation works (~2 min)
-
-We **won't** put the venv on your PATH permanently — instead you'll
-activate it per terminal on the day. Nothing leaks into your normal
-shell. Confirm activation resolves Python to the workshop env:
+Verify the packages import by calling the venv's Python directly (this
+is exactly how the agent will run Python on the day — no activation,
+no PATH changes):
 
 **macOS / Linux:**
 
 ```bash
-source "$WORKSHOP/.venv/bin/activate"
-which python   # -> $WORKSHOP/.venv/bin/python
+"$WORKSHOP/.venv/bin/python" -c "import pandas, matplotlib, sklearn, skfem; print('ok')"
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-& "$env:WORKSHOP\.venv\Scripts\Activate.ps1"
-Get-Command python | Select-Object -ExpandProperty Source   # -> ...\.venv\Scripts\python.exe
+& "$env:WORKSHOP\.venv\Scripts\python.exe" -c "import pandas, matplotlib, sklearn, skfem; print('ok')"
 ```
+
+You should see `ok`. If you see an `ImportError`, reply with the full
+error message.
 
 You don't need to do anything else with your API key before the day —
 we'll add it to OpenCode interactively in the room (`opencode auth
-login`). Just keep the key from step 1 handy.
+login`) and point the agent at this venv. Just keep the key from
+step 1 handy.
 
 ## What we'll do in the room
 
 - ~10 min: install OpenCode, log in with your API key (`opencode auth
-  login`), select the `gpt-5.4-mini` model, and smoke-test that the
-  agent can read, write, and run Python.
+  login`), select the `gpt-5.4-mini` model, add a one-line rule that
+  points the agent at the workshop venv, and smoke-test that the agent
+  can read, write, and run Python.
 - ~30 min: Task 1 — hand the agent a 200-design parametric sweep
   and have it produce an engineering memo with a validated
   predictive model. Real dataset, planted data quality issues.

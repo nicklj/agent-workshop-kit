@@ -34,8 +34,9 @@ workshop/
 Walk every participant through: create an OpenAI account → top up $5
 → generate an API key → install `uv` and create a project-local
 `.venv` in the workshop folder → install OpenCode → log in with
-`opencode auth login` and select `gpt-5.4-mini` in the TUI → activate
-the `.venv` before launching OpenCode → smoke-test one tool call.
+`opencode auth login` and select `gpt-5.4-mini` in the TUI → drop a
+global `AGENTS.md` rule pinning the workshop `.venv` Python →
+smoke-test one tool call.
 
 Full step-by-step in `task0_kit/SETUP.md`.
 
@@ -104,8 +105,9 @@ working on your machine.
 Each participant copies the relevant kit folder to a fresh directory
 and `cd`s in before launching OpenCode. They should not see the
 solution/hints files or the other task's kit. Assumes `$WORKSHOP`
-points at the kit folder (see `task0_kit/SETUP.md`) — activate the env
-first in every terminal so the agent's `python` is the workshop env.
+points at the kit folder and the global `AGENTS.md` rule is in place
+(see `task0_kit/SETUP.md`) — that rule makes the agent use the
+workshop `.venv` Python automatically, so there's nothing to activate.
 
 macOS / Linux:
 
@@ -114,13 +116,11 @@ macOS / Linux:
 cd "$WORKSHOP/task0_kit" && less SETUP.md
 
 # Task 1 main
-source "$WORKSHOP/.venv/bin/activate"
 cp -r "$WORKSHOP/task1_kit" ~/agent_task1
 cd ~/agent_task1
 opencode
 
 # Task 2 deep
-source "$WORKSHOP/.venv/bin/activate"
 cp -r "$WORKSHOP/task2_kit" ~/agent_task2
 cd ~/agent_task2
 opencode
@@ -133,13 +133,11 @@ Windows (PowerShell):
 Get-Content "$env:WORKSHOP\task0_kit\SETUP.md"
 
 # Task 1 main
-& "$env:WORKSHOP\.venv\Scripts\Activate.ps1"
 Copy-Item -Recurse "$env:WORKSHOP\task1_kit" $HOME\agent_task1
 cd $HOME\agent_task1
 opencode
 
 # Task 2 deep
-& "$env:WORKSHOP\.venv\Scripts\Activate.ps1"
 Copy-Item -Recurse "$env:WORKSHOP\task2_kit" $HOME\agent_task2
 cd $HOME\agent_task2
 opencode
@@ -159,8 +157,8 @@ before. Note:
   peak T ≈ 344 K on centerline, peak σ_vm ≈ 22 MPa in copper near
   interface, σ_xx interface jump ≈ 24 MPa, t_95 ≈ 0.86 s
 - Whether scikit-fem installed cleanly in the workshop `.venv` — run
-  `task2_reference_solver.py` yourself first to confirm (with the env
-  active: `source "$WORKSHOP/.venv/bin/activate"`)
+  `task2_reference_solver.py` with the venv Python yourself first to
+  confirm: `"$WORKSHOP/.venv/bin/python" "$WORKSHOP/task2_reference_solver.py"`
 - Whether file-edit, CSV-read, and `python -c …` tool calls are clean
 
 Budget check: total token cost for both tasks per participant on

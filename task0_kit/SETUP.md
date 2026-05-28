@@ -43,8 +43,8 @@ folder. Every command below — and in tasks 1 and 2 — uses it, so
 they're identical for everyone regardless of where you put the kit.
 Persist it so new terminals see it.
 
-(`WORKSHOP` is just a path string — it does *not* change which Python
-you get; only activating the venv does that.)
+(`WORKSHOP` is just a path string. We'll use it to build the venv and
+to tell OpenCode where the venv's Python is — see step 4.)
 
 **macOS / Linux** — referenced as `$WORKSHOP`:
 
@@ -85,12 +85,14 @@ uv --version
 
 ### Create the environment
 
+`uv pip install` targets the `.venv` in the current folder
+automatically — no activation needed.
+
 **macOS / Linux:**
 
 ```bash
 cd "$WORKSHOP"               # the folder containing requirements.txt
 uv venv .venv --python 3.12
-source .venv/bin/activate
 uv pip install -r requirements.txt
 ```
 
@@ -99,14 +101,8 @@ uv pip install -r requirements.txt
 ```powershell
 cd $env:WORKSHOP             # the folder containing requirements.txt
 uv venv .venv --python 3.12
-.venv\Scripts\Activate.ps1
 uv pip install -r requirements.txt
 ```
-
-> Windows: if PowerShell refuses to run `Activate.ps1` with an
-> execution-policy error, run this once and retry:
-> `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`. Or use
-> `cmd.exe` and activate with `.venv\Scripts\activate.bat`.
 
 The pinned versions in `requirements.txt` are verified against the
 Task 2 reference solver — don't install the packages loose, or a
@@ -114,11 +110,19 @@ future scikit-fem release can break the solver API mid-workshop.
 (`scikit-fem` is for task 2; pandas / matplotlib / scikit-learn are
 for task 1.)
 
-Verify everything imports — with the env active, plain `python` is
-now the workshop env:
+Verify everything imports by calling the venv's Python directly (this
+is exactly how the agent will run Python — see step 4):
+
+**macOS / Linux:**
 
 ```bash
-python -c "import pandas, matplotlib, sklearn, skfem; print('ok')"
+"$WORKSHOP/.venv/bin/python" -c "import pandas, matplotlib, sklearn, skfem; print('ok')"
+```
+
+**Windows (PowerShell):**
+
+```powershell
+& "$env:WORKSHOP\.venv\Scripts\python.exe" -c "import pandas, matplotlib, sklearn, skfem; print('ok')"
 ```
 
 You should see `ok` printed. If not, stop and ask.
@@ -200,53 +204,57 @@ persists for next time.
 > Fallback: if `opencode auth login` gives you trouble, OpenCode also
 > reads an `OPENAI_API_KEY` environment variable if one is set.
 
-### Activate the workshop env before launching OpenCode
+### Tell OpenCode to always use the workshop Python (one-time rule)
 
-So that any Python the agent runs uses the workshop environment,
-**activate the env in each terminal right before you launch
-OpenCode.** Activation puts the venv first on `PATH` for that
-terminal only — OpenCode (and the `python` it shells out to) inherits
-it, and nothing permanent is changed.
+Rather than activating the venv in every terminal, we give the agent a
+standing instruction: **always run Python from the workshop venv.**
+OpenCode reads a global rules file at `~/.config/opencode/AGENTS.md`
+on every session, in every folder — so this is done once and applies
+to the smoke test and both tasks. The command below writes the rule
+with your venv's **absolute** Python path baked in.
 
 **macOS / Linux:**
 
 ```bash
-source "$WORKSHOP/.venv/bin/activate"
-which python
-# should print $WORKSHOP/.venv/bin/python
+mkdir -p ~/.config/opencode
+printf 'In this workshop, always run Python as %s/.venv/bin/python and install packages with %s/.venv/bin/python -m pip. Never use the system python or pip.\n' "$WORKSHOP" "$WORKSHOP" > ~/.config/opencode/AGENTS.md
+cat ~/.config/opencode/AGENTS.md   # check the path is absolute and correct
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-& "$env:WORKSHOP\.venv\Scripts\Activate.ps1"
-Get-Command python | Select-Object -ExpandProperty Source
-# should print ...\.venv\Scripts\python.exe
+$cfg = "$env:USERPROFILE\.config\opencode"
+New-Item -ItemType Directory -Force $cfg | Out-Null
+"In this workshop, always run Python as $env:WORKSHOP\.venv\Scripts\python.exe and install packages with $env:WORKSHOP\.venv\Scripts\python.exe -m pip. Never use the system python or pip." | Set-Content "$cfg\AGENTS.md"
+Get-Content "$cfg\AGENTS.md"   # check the path is absolute and correct
 ```
 
-> Remember this line — you'll run it in **every new terminal** before
-> `opencode`, including for tasks 1 and 2. If you forget, the agent
-> will use your system Python and the imports will fail.
+Because the rule names an absolute path, the agent calls the workshop
+Python directly — no PATH, no activation, nothing to remember in new
+terminals.
 
-> **Fallback (only if needed):** if smoke test #3 below shows the
-> wrong Python *even after activating*, OpenCode may be spawning a
-> fresh shell that drops the activation. Put the venv on PATH instead:
-> - macOS / Linux: `echo 'export PATH="$WORKSHOP/.venv/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc`
-> - Windows (PowerShell): `setx PATH "$env:WORKSHOP\.venv\Scripts;$env:PATH"` then open a new terminal
->
-> Undo it after the workshop.
+> This is a global rule that affects all OpenCode sessions on this
+> machine. After the workshop, delete `~/.config/opencode/AGENTS.md`
+> to remove it.
+
+> **Fallback (only if needed):** if the agent ever runs bare `python`
+> and an import fails, just remind it in chat ("use the workshop venv
+> Python from your rules"), or activate the venv as a hard guarantee:
+> `source "$WORKSHOP/.venv/bin/activate"` (macOS / Linux) /
+> `& "$env:WORKSHOP\.venv\Scripts\Activate.ps1"` (Windows).
 
 ---
 
 ## Step 5 — smoke test (~3 min)
 
-In a fresh terminal (so the new env vars are loaded), activate the
-workshop env first, then launch OpenCode in any empty folder:
+In a fresh terminal (so `$WORKSHOP` is loaded), launch OpenCode in any
+empty folder — no activation needed, the global rule from step 4
+handles Python:
 
 **macOS / Linux:**
 
 ```bash
-source "$WORKSHOP/.venv/bin/activate"
 mkdir ~/opencode_smoke && cd ~/opencode_smoke
 opencode
 ```
@@ -254,7 +262,6 @@ opencode
 **Windows (PowerShell):**
 
 ```powershell
-& "$env:WORKSHOP\.venv\Scripts\Activate.ps1"
 mkdir $HOME\opencode_smoke; cd $HOME\opencode_smoke
 opencode
 ```
@@ -269,12 +276,15 @@ sure each one actually executes:
    It should write the file. Then in another terminal confirm it:
    `cat ~/opencode_smoke/hello.txt` (macOS / Linux) or
    `type $HOME\opencode_smoke\hello.txt` (Windows PowerShell).
-3. **"Run `python -c 'import pandas; print(pandas.__version__)'` and
-   tell me the version."**
-   It should execute, capture stdout, and report a version number.
+3. **"Import pandas and print its version."**
+   It should run Python — and thanks to the rule from step 4, it
+   should call the **workshop venv** Python (`$WORKSHOP/.venv/...`),
+   capture stdout, and report a version number.
 
 If any of these fail — *especially #3* — flag it now. The hands-on
-tasks rely on the agent being able to run Python and see its output.
+tasks rely on the agent being able to run the workshop Python and see
+its output. If #3 used the wrong Python, recheck
+`~/.config/opencode/AGENTS.md`.
 
 ---
 
@@ -287,15 +297,13 @@ Tick off:
 - [ ] OpenCode's active model is `gpt-5.4-mini` (shown in the TUI footer)
 - [ ] `WORKSHOP` is set — macOS/Linux `echo "$WORKSHOP"`, Windows
       `echo $env:WORKSHOP` — prints the kit folder
-- [ ] After activating, `python` resolves to the venv — macOS/Linux
-      `which python` → `$WORKSHOP/.venv/bin/python`; Windows
-      `Get-Command python` → `...\.venv\Scripts\python.exe`
-- [ ] `python -c "import pandas, matplotlib, sklearn, skfem"` succeeds
-      (with the env active)
-- [ ] Smoke test #3 above returned a real version number
+- [ ] The venv's Python imports the packages — macOS/Linux
+      `"$WORKSHOP/.venv/bin/python" -c "import pandas, matplotlib, sklearn, skfem"`;
+      Windows `& "$env:WORKSHOP\.venv\Scripts\python.exe" -c "..."`
+- [ ] `~/.config/opencode/AGENTS.md` exists and names your
+      `$WORKSHOP/.venv` Python (absolute path)
+- [ ] Smoke test #3 returned a real version number **and** used the
+      workshop venv Python
 - [ ] You can read your OpenAI billing page and see your $5 balance
-- [ ] You know to activate the env in every new terminal before
-      launching `opencode` (`source "$WORKSHOP/.venv/bin/activate"` /
-      `& "$env:WORKSHOP\.venv\Scripts\Activate.ps1"`)
 
 If all of these are checked, you're good for tasks 1 and 2.

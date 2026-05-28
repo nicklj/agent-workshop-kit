@@ -56,20 +56,23 @@ moves under "stretch".
 ## Task 0 facilitation tips
 
 - Have a "buddy system": pair anyone whose terminal is unfamiliar
-  with someone who's comfortable. The most common stumble is
-  forgetting to activate the venv in a new terminal before `opencode`
-  — macOS/Linux `source "$WORKSHOP/.venv/bin/activate"`, Windows
-  `& "$env:WORKSHOP\.venv\Scripts\Activate.ps1"`. `which python` /
-  `Get-Command python` is the quick check. If activation works in the
-  shell but the agent's `python` still isn't the venv, use the PATH
-  fallback in `SETUP.md` step 4.
+  with someone who's comfortable. The Python env is handled by a
+  global rule in `~/.config/opencode/AGENTS.md` (step 4) that tells
+  the agent to use the workshop venv's absolute Python path — so
+  there's no per-terminal activation to forget. The common stumble is
+  that rule being missing or pointing at the wrong path: if smoke test
+  #3 imports against the system Python, `cat`/`Get-Content` that file
+  and check the path. As a hard fallback, the participant can activate
+  the venv (`source "$WORKSHOP/.venv/bin/activate"` /
+  `& "$env:WORKSHOP\.venv\Scripts\Activate.ps1"`).
 - **Windows specifics:** uv/OpenCode are installed via the PowerShell
-  installer / npm (needs Node.js) — see `SETUP.md`. Two likely snags:
-  (1) PowerShell blocks `Activate.ps1` with an execution-policy error
-  → `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once; (2)
-  `setx` only affects *new* terminals, so a participant who just ran
-  it needs to open a fresh PowerShell (or also set `$env:WORKSHOP` in
-  the current one).
+  installer / npm (needs Node.js) — see `SETUP.md`. Likely snags:
+  (1) `setx` only affects *new* terminals, so someone who just ran it
+  needs a fresh PowerShell (or also set `$env:WORKSHOP` in the current
+  one); (2) the global rule file lives at
+  `%USERPROFILE%\.config\opencode\AGENTS.md`; (3) only if they fall
+  back to activation, PowerShell may block `Activate.ps1` →
+  `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once.
 - The OpenAI API key is the step that takes longest — phone
   verification on a new account can take 5+ minutes. Suggest people
   start that step *first* and do the uv/OpenCode install in parallel

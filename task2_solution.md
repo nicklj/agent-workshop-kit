@@ -170,8 +170,9 @@ On `gpt-5.4-mini`, expect:
 
 ## Pre-flight you must do
 
-Run `task2_reference_solver.py` yourself with the workshop env active
-(`source "$WORKSHOP/.venv/bin/activate"`). Confirm it finishes
+Run `task2_reference_solver.py` yourself with the workshop venv Python
+(`"$WORKSHOP/.venv/bin/python" "$WORKSHOP/task2_reference_solver.py"`).
+Confirm it finishes
 in under 2 seconds and prints the reference numbers in this doc. If
 it doesn't run on your machine, **the workshop won't either** —
 debug scikit-fem install / Python version mismatches before the day.
