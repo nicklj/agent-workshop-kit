@@ -13,3 +13,10 @@ virtual environment** — never the system Python or pip.
 folder; the shell expands it when you run the command. Confirm with
 `echo "$WORKSHOP"` (macOS / Linux) or `echo $env:WORKSHOP` (Windows)
 before running Python if a command ever fails.
+
+## Constraints
+
+- The **only** thing you may use from `$WORKSHOP` is its `.venv` Python
+  interpreter. Do **not** list, read, open, or otherwise inspect any
+  other file or folder inside `$WORKSHOP` — solutions, hints, and other
+  task kits live there. Work only with the files in this project folder.
