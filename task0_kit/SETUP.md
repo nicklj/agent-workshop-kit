@@ -6,24 +6,31 @@ past a broken step.
 
 ---
 
-## Step 1 — get an OpenAI API key (~5 min)
+## Step 1 — get an OpenAI API key (optional, ~5 min)
+
+**This step is optional.** OpenCode ships with several **free** models
+you can use out of the box — no account, no key, no spend. If you're
+happy using a free model, skip to step 2 and you'll pick one in step 4.
+
+Do this step only if you want to run the workshop on OpenAI's
+`gpt-5.4-mini` (the model these notes are tuned for). It needs an
+account and **US$5** of credit (gpt-5.4-mini is cheap — $5 covers the
+whole workshop with room to spare).
 
 1. Go to https://platform.openai.com/signup and create an account (or
    sign in if you already have one).
 2. Once logged in, open the **billing** page:
    https://platform.openai.com/settings/organization/billing
-3. Click **Add to credit balance** and top up **US$5**. Five dollars
-   is enough for this whole workshop with room to spare —
-   `gpt-5.4-mini` is cheap.
+3. Click **Add to credit balance** and top up **US$5**.
 4. Open the **API keys** page:
    https://platform.openai.com/api-keys
 5. Click **Create new secret key**, name it `workshop`, and **copy the
    key now** — you won't be able to see it again. Paste it somewhere
    you trust temporarily (we'll hand it to OpenCode in step 4).
 
-> Tip: OpenAI's free tier credits will not work here — top up with $5
-> of real credit. The first prompt with an empty wallet returns a
-> 429-like error that looks confusing.
+> Tip: OpenAI's free-tier credits will not work for API calls — top up
+> with $5 of real credit. The first prompt with an empty wallet returns
+> a 429-like error that looks confusing.
 
 ---
 
@@ -139,11 +146,17 @@ Pick whichever install method works on your machine:
 | macOS / Linux | Homebrew | `brew install sst/tap/opencode` |
 | any (needs Node.js) | npm | `npm install -g opencode-ai` |
 
-**Windows:** use the npm method (`npm install -g opencode-ai`). It
-needs Node.js first — install from <https://nodejs.org> (LTS) if you
-don't have it (`node --version` to check).
+**Windows — two choices:**
 
-Verify:
+- **npm:** `npm install -g opencode-ai`. Needs Node.js first — install
+  from <https://nodejs.org> (LTS) if you don't have it (`node --version`
+  to check). This gives you the same `opencode` CLI used below.
+- **OpenCode Desktop:** download the desktop app from
+  <https://opencode.ai> and install it. This is a GUI alternative — no
+  Node.js needed. If you go this route, the CLI command examples below
+  map to the app's UI (log in, pick a model, open a folder, chat).
+
+Verify (CLI install):
 
 ```bash
 opencode --version
@@ -156,15 +169,22 @@ a new terminal so the npm global bin directory is picked up.
 
 ---
 
-## Step 4 — give OpenCode your API key and model (~3 min)
+## Step 4 — pick your model (~3 min)
 
-Do this through OpenCode's own interface — no config files, no
-environment variables to edit.
+You have two options:
 
-### Add your API key (`opencode auth login`)
+- **Option A — free model:** use one of OpenCode's built-in free
+  models. No key needed — skip straight to "Select the model" below.
+- **Option B — OpenAI key:** set up the API key you created in step 1
+  to run `gpt-5.4-mini` (the model these notes are tuned for).
 
-Run this and follow the prompts (same command on macOS, Linux, and
-Windows PowerShell):
+Everything is done through OpenCode's own interface — no config files,
+no environment variables to edit.
+
+### Option B only — add your API key (`opencode auth login`)
+
+*Skip this if you're using a free model.* Run this and follow the
+prompts (same command on macOS, Linux, and Windows PowerShell):
 
 ```bash
 opencode auth login
@@ -182,7 +202,10 @@ opencode auth list
 # should list "openai"
 ```
 
-### Select the model (`gpt-5.4-mini`)
+> Fallback: if `opencode auth login` gives you trouble, OpenCode also
+> reads an `OPENAI_API_KEY` environment variable if one is set.
+
+### Select the model
 
 OpenCode remembers the last model you picked, so set it once via the
 TUI. Launch OpenCode in any folder:
@@ -191,18 +214,17 @@ TUI. Launch OpenCode in any folder:
 opencode
 ```
 
-In the TUI, open the model picker — type `/models` and press Enter (or
-use the model-switch keybind shown in the footer; `/help` lists the
-commands) — then choose **OpenAI → `gpt-5.4-mini`**. Your choice
-persists for next time.
+Open the model picker — type `/models` and press Enter (or use the
+model-switch keybind shown in the footer; `/help` lists the commands):
 
-> One-shot alternative: launch directly on the model with
-> `opencode --model openai/gpt-5.4-mini`. The single requirement is
-> that the active model resolves to `gpt-5.4-mini` via the OpenAI
-> provider — the model name shows in the TUI footer.
+- **Free model:** pick one of the free models OpenCode lists (they're
+  labelled in the picker). Good enough to do both tasks.
+- **OpenAI key:** choose **OpenAI → `gpt-5.4-mini`** (the model these
+  notes are tuned for). One-shot alternative: launch directly with
+  `opencode --model openai/gpt-5.4-mini`.
 
-> Fallback: if `opencode auth login` gives you trouble, OpenCode also
-> reads an `OPENAI_API_KEY` environment variable if one is set.
+Your choice persists for next time — the active model shows in the TUI
+footer.
 
 ### How OpenCode knows to use the workshop Python
 
@@ -273,9 +295,12 @@ its output.
 
 Tick off:
 
-- [ ] `opencode --version` works
-- [ ] `opencode auth list` shows `openai` (key registered via the TUI)
-- [ ] OpenCode's active model is `gpt-5.4-mini` (shown in the TUI footer)
+- [ ] `opencode --version` works (CLI install), or the OpenCode
+      Desktop app opens
+- [ ] A model is active and shown in the TUI footer — a free model, or
+      `gpt-5.4-mini` if you set up an OpenAI key
+- [ ] *(OpenAI-key route only)* `opencode auth list` shows `openai`,
+      and you can see your $5 balance on the OpenAI billing page
 - [ ] `WORKSHOP` is set — macOS/Linux `echo "$WORKSHOP"`, Windows
       `echo $env:WORKSHOP` — prints the kit folder
 - [ ] The venv's Python imports the packages — macOS/Linux
@@ -285,6 +310,5 @@ Tick off:
       workshop venv Python)
 - [ ] You understand the task kits carry an `AGENTS.md` that points
       the agent at `$WORKSHOP/.venv` — so tasks 1 and 2 need no setup
-- [ ] You can read your OpenAI billing page and see your $5 balance
 
 If all of these are checked, you're good for tasks 1 and 2.
